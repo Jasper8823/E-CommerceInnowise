@@ -2,8 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Company;
+use App\Models\Product;
+use App\Models\ProductType;
+use App\Models\Service;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\AuthorisedUser;
+use Database\Factories\ProductServiceFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +18,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        Company::factory()->count(10)->create();
+        ProductType::factory()->count(10)->create();
+        AuthorisedUser::factory()->count(100)->create();
+        Product::factory()->count(100)->create();
+        Service::factory()->count(100)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+
+        $products = Product::all();
+        $services = Service::all();
+
+        foreach ($products as $product) {
+            $randomServices = $services->random(rand(1, 5));
+            foreach ($randomServices as $service) {
+                $product->services()->attach($service->id, [
+                    'price' => fake()->numberBetween(100, 5000),
+                    'daysNeeded' => fake()->numberBetween(1, 30),
+                ]);
+            }
+        }
     }
 }
