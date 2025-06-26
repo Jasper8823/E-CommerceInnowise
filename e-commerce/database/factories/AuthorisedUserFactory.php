@@ -17,8 +17,6 @@ class AuthorisedUserFactory extends Factory
             'name' => $this->faker->firstName,
             'surname' => $this->faker->lastName,
             'company_id' => random_int(1,10),
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => Hash::make('password'),
             'isAdmin' => $this->faker->boolean(5),
         ];
     }

@@ -15,7 +15,8 @@
                 <div class="mt-4 w-[200px] border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
                     <div class="space-y-2">
                         <div class="font-medium text-gray-900 text-lg">{{ $service->name }}</div>
-                        <div class="font-semibold text-green-700">Price: ${{ number_format($service->price, 2) }}</div>
+                        <div class="font-semibold text-gray-900">Days needed: {{ number_format($service->pivot->daysNeeded) }}</div>
+                        <div class="font-semibold text-green-700">Price: ${{ number_format($service->pivot->price, 2) }}</div>
                     </div>
                 </div>
             @endforeach

@@ -11,13 +11,16 @@
                     <div class="hidden md:block">
                         <div style="display:inline-block" class="ml-10 flex items-baseline space-x-4">
                             <x-nav-link href="/products" :active="request()->is('products')">Products</x-nav-link>
-                            <x-nav-link href="/profile" :active="request()->is('profile')">Profile</x-nav-link>
                         </div>
                         <div style="display:inline-block;position:absolute; right: 250px">
                             @guest()
                                 <x-nav-link style="margin: 5px" href="/login" :active="request()->is('login')">Log In</x-nav-link>
                                 <x-nav-link style="margin: 5px" href="/auth" :active="request()->is('auth')">Register</x-nav-link>
                             @endguest
+                            @auth()
+                                <x-nav-link style="margin: 5px" href="/logout">Log Out</x-nav-link>
+                                <x-nav-link style="margin: 5px" href="/products/create">Create Product</x-nav-link>
+                            @endauth
                         </div>
                     </div>
                 </div>
@@ -35,4 +38,3 @@
         {{$slot}}
     </main>
 </div>
-<?php

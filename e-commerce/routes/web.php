@@ -1,20 +1,27 @@
 <?php
 
-use App\Models\Product;
+use App\Http\Controllers\LogInController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return redirect('/products');
 });
 
-Route::get('/products', function () {
-    $products = Product::all();
-
-    return view('products', ['products'=>$products]);
+Route::controller(ProductController::class)->group(function (){
+    Route::get('/products', 'index');
+    Route::get('/admin/products', 'adminIndex');
+    Route::get('/products/create', 'create');
+    Route::get('/products/{id}', 'show');
 });
 
-Route::get('/products/{id}', function ($id){
-    $product =  Product::all()->where('id',$id)->first();
-    return view('show', ['product' => $product]);
+Route::controller(RegistrationController::class)->group(function () {
+    Route::get('/auth', 'create');
+    Route::post('/auth', 'store');
+});
+Route::controller(LogInController::class)->group(function () {
+    Route::get('/login', 'auth');
+    Route::post('/login', 'check');
+    Route::get('/logout', 'logout');
 });

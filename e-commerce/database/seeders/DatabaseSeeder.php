@@ -3,12 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Company;
+use App\Models\Login;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\Service;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\AuthorisedUser;
-use Database\Factories\ProductServiceFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,7 +19,8 @@ class DatabaseSeeder extends Seeder
     {
         Company::factory()->count(10)->create();
         ProductType::factory()->count(10)->create();
-        AuthorisedUser::factory()->count(100)->create();
+        //    AuthorisedUser::factory()->count(100)->create();
+        Login::factory()->count(100)->create();
         Product::factory()->count(100)->create();
         Service::factory()->count(100)->create();
 

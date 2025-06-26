@@ -51,20 +51,27 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('authorised_users', function (Blueprint $table){
-            $table->id();
-            $table->string('name');
-            $table->string('surname');
-            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->boolean('isAdmin')->default(false);
-            $table->timestamps();
+        //     Schema::create('authorised_users', function (Blueprint $table){
+            //         $table->id();
+            //          $table->string('name');
+            //         $table->string('surname');
+//            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            //           $table->boolean('isAdmin')->default(false);
+            //          $table->timestamps();
+            //      });
+
+        Schema::create('logins', function (Blueprint $table){
+                     $table->id();
+                     $table->string('email')->unique();
+                     $table->string('password');
+            //          $table->foreignId('authorised_user_id')->constrained('authorised_users')->onDelete('cascade');
+                       $table->timestamps();
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('logins');
         Schema::dropIfExists('users');
         Schema::dropIfExists('companies');
         Schema::dropIfExists('product_service');

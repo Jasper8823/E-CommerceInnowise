@@ -14,13 +14,10 @@ class AuthorisedUser extends Authenticatable
         'name',
         'surname',
         'company_id',
-        'email',
-        'password',
         'isAdmin',
     ];
 
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
