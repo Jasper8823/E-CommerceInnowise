@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Login;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 
-class RegistrationController extends Controller
+final class RegistrationController extends Controller
 {
-    public function create(){
+    public function create()
+    {
         return view('auth.register');
     }
 
@@ -28,6 +30,8 @@ class RegistrationController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        return redirect('/admin/products')->with('success', 'Registration successful.');
+
+
+        return redirect('/')->with('success', 'Registration successful.');
     }
 }

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Service extends Model
+final class Service extends Model
 {
     use HasFactory;
 
@@ -14,6 +16,6 @@ class Service extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'product_service')
-            ->withPivot('price', 'daysNeeded');
+            ->withPivot('price', 'days_needed');
     }
 }

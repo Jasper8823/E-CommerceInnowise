@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class AuthorisedUser extends Authenticatable
+final class AuthorisedUser extends Authenticatable
 {
     use HasFactory, Notifiable;
 
@@ -14,7 +16,7 @@ class AuthorisedUser extends Authenticatable
         'name',
         'surname',
         'company_id',
-        'isAdmin',
+        'is_admin',
     ];
 
     protected $hidden = [

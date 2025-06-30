@@ -1,13 +1,13 @@
 <?php
 
-use App\Models\Product;
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    protected $model = Product::class;
     public function up(): void
     {
         Schema::create('product_types', function (Blueprint $table) {
@@ -19,10 +19,9 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('totalIncome');
+            $table->integer('total_income');
             $table->timestamps();
         });
-
 
         Schema::create('products', function (Blueprint $table) {
             $table->id();
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->foreignId('product_type_id')->constrained('product_types');
             $table->string('name');
             $table->integer('price');
-            $table->timestamp('releaseDate');
+            $table->timestamp('release_date');
             $table->foreignId('company_id')->constrained('companies');
             $table->string('description');
             $table->timestamps();
@@ -45,27 +44,17 @@ return new class extends Migration
         Schema::create('product_service', function (Blueprint $table) {
             $table->id();
             $table->integer('price');
-            $table->integer('daysNeeded');
+            $table->integer('days_needed');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
             $table->timestamps();
         });
 
-        //     Schema::create('authorised_users', function (Blueprint $table){
-            //         $table->id();
-            //          $table->string('name');
-            //         $table->string('surname');
-//            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            //           $table->boolean('isAdmin')->default(false);
-            //          $table->timestamps();
-            //      });
-
-        Schema::create('logins', function (Blueprint $table){
-                     $table->id();
-                     $table->string('email')->unique();
-                     $table->string('password');
-            //          $table->foreignId('authorised_user_id')->constrained('authorised_users')->onDelete('cascade');
-                       $table->timestamps();
+        Schema::create('logins', function (Blueprint $table) {
+            $table->id();
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->timestamps();
         });
     }
 
@@ -73,10 +62,10 @@ return new class extends Migration
     {
         Schema::dropIfExists('logins');
         Schema::dropIfExists('users');
-        Schema::dropIfExists('companies');
         Schema::dropIfExists('product_service');
         Schema::dropIfExists('services');
         Schema::dropIfExists('products');
         Schema::dropIfExists('product_types');
+        Schema::dropIfExists('companies');
     }
 };

@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class Login extends Authenticatable
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+final class Login extends Authenticatable
 {
     use HasFactory;
 

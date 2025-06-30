@@ -43,6 +43,9 @@
                         <option value="{{ $company->id }}">{{ $company->name }}</option>
                     @endforeach
                 </select>
+                <p class="mt-2 text-xl text-gray-500">or create new manufacturer:</p>
+                <input type="text" name="new_company" placeholder="New company"
+                       class="p-4 mt-1 block w-full border-gray-300 rounded-md shadow-sm sm text-base">
             </div>
 
             <div>

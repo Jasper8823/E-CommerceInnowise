@@ -19,7 +19,7 @@
                             @endguest
                             @auth()
                                 <x-nav-link style="margin: 5px" href="/logout">Log Out</x-nav-link>
-                                <x-nav-link style="margin: 5px" href="/products/create">Create Product</x-nav-link>
+                                <x-nav-link style="margin: 5px" href="/admin/products/create">Create Product</x-nav-link>
                             @endauth
                         </div>
                     </div>
@@ -30,8 +30,6 @@
 
     <header class="bg-white shadow-sm">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <!--  <h1 class="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-            <a href="/jobs/create" style="position: relative; right: -1200px; top: -30px; font-family: sans-serif; font-size: 1.2em">Create job</a> -->
         </div>
     </header>
     <main>

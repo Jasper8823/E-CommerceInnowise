@@ -1,16 +1,25 @@
 <x-body>
     <div class="px-[200px] mb-6">
-        <form method="GET" action="/products" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+        <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
             @csrf
             <div>
+                <label class="block text-sm font-medium text-gray-700">Sort By</label>
+                <select name="sort" class="mt-1 block w-full rounded-md shadow-sm
+                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                    <option value="">Default</option>
+                    <option value="price_asc" @selected(request('sort') === 'price_asc')>Price: Low to High</option>
+                    <option value="price_desc" @selected(request('sort') === 'price_desc')>Price: High to Low</option>
+                    <option value="release_asc" @selected(request('sort') === 'release_asc')>Release Date: Oldest First</option>
+                    <option value="release_desc" @selected(request('sort') === 'release_desc')>Release Date: Newest First</option>
+                </select>
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-gray-700">Type</label>
-                <select name="type"
-                        class="mt-1 block w-full rounded-md shadow-sm
-                           focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+                <select name="type" class="mt-1 block w-full rounded-md shadow-sm
+               focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                     <option value="">All types</option>
                     @foreach ($types as $type)
-                        <option value="{{ $type->name }}"
-                            @selected(request('type') === $type->name)>
+                        <option value="{{ $type->name }}" @selected(request('type') === $type->name)>
                             {{ $type->name }}
                         </option>
                     @endforeach
@@ -42,21 +51,24 @@
                 </button>
             </div>
         </form>
+
     </div>
     <div class="bg-gray-100 py-8 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 @if(count($products) > 0)
                     @foreach($products as $product)
-                            <div class="bg-white rounded-lg shadow p-4 flex flex-col justify-between" onclick="window.location.href='/products/{{$product->uuId}}'">
-                                <div>
+                            <div class="bg-white rounded-lg shadow p-4 flex flex-col justify-between">
+                                <div onclick="window.location.href='/products/{{$product->uuId}}'">
                                     <h2 class="text-lg font-semibold text-gray-800">{{ $product->name }}</h2>
                                     <p class="text-sm text-gray-500 mb-2">{{ $product -> manufacturer-> name }}</p>
                                     <p class="text-gray-700 text-sm mb-4">{{ $product->description }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-green-600 font-bold text-base mb-1">${{$product->price}}</p>
-                                    <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->releaseDate)) }}</p>
+                                    <div onclick="window.location.href='/products/{{$product->uuId}}'">
+                                        <p class="text-green-600 font-bold text-base mb-1">${{$product->price}}</p>
+                                        <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->releaseDate)) }}</p>
+                                    </div>
                                     @auth
                                         <form method="POST" action="/products/{{ $product->id }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
                                             @csrf

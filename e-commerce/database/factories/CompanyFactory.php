@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class CompanyFactory extends Factory
+final class CompanyFactory extends Factory
 {
     protected $model = Company::class;
 
@@ -13,7 +15,7 @@ class CompanyFactory extends Factory
     {
         return [
             'name' => $this->faker->company,
-            'totalIncome' => $this->faker->numberBetween(0),
+            'total_income' => $this->faker->numberBetween(0),
         ];
     }
 }

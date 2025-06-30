@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\AuthorisedUser;
-use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 
-class AuthorisedUserFactory extends Factory
+final class AuthorisedUserFactory extends Factory
 {
     protected $model = AuthorisedUser::class;
 
@@ -16,7 +16,7 @@ class AuthorisedUserFactory extends Factory
         return [
             'name' => $this->faker->firstName,
             'surname' => $this->faker->lastName,
-            'company_id' => random_int(1,10),
+            'company_id' => random_int(1, 10),
             'isAdmin' => $this->faker->boolean(5),
         ];
     }

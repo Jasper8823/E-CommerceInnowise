@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
+use App\Models\AuthorisedUser;
 use App\Models\Company;
 use App\Models\Login;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\Service;
-use App\Models\AuthorisedUser;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+final class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
@@ -24,7 +26,6 @@ class DatabaseSeeder extends Seeder
         Product::factory()->count(100)->create();
         Service::factory()->count(100)->create();
 
-
         $products = Product::all();
         $services = Service::all();
 
@@ -33,7 +34,7 @@ class DatabaseSeeder extends Seeder
             foreach ($randomServices as $service) {
                 $product->services()->attach($service->id, [
                     'price' => fake()->numberBetween(100, 5000),
-                    'daysNeeded' => fake()->numberBetween(1, 30),
+                    'days_needed' => fake()->numberBetween(1, 30),
                 ]);
             }
         }

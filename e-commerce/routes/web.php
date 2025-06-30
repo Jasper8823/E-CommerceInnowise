@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GuestController;
 use App\Http\Controllers\LogInController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,12 +10,10 @@ Route::get('/', function () {
     return redirect('/products');
 });
 
-Route::controller(ProductController::class)->group(function (){
-    Route::get('/products', 'index');
-    Route::get('/admin/products', 'adminIndex');
-    Route::get('/products/create', 'create');
-    Route::get('/products/{id}', 'show');
-});
+Route::resources([
+    'admin/products' => AdminController::class,
+    'products' => GuestController::class,
+]);
 
 Route::controller(RegistrationController::class)->group(function () {
     Route::get('/auth', 'create');
