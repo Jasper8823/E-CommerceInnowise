@@ -10,16 +10,17 @@ use App\Models\ProductType;
 use App\Services\ProductCreationService;
 use App\Services\ProductQueryService;
 use App\Services\ProductUpdateService;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 final class AdminProductController extends Controller
 {
     protected ProductQueryService $productQueryService;
-    protected ProductCreationService $productCreationService;
-    protected ProductUpdateService $productUpdateService;
 
+    protected ProductCreationService $productCreationService;
+
+    protected ProductUpdateService $productUpdateService;
 
     public function __construct(ProductQueryService $productQueryService, ProductCreationService $productCreationService, ProductUpdateService $productUpdateService)
     {
@@ -27,6 +28,7 @@ final class AdminProductController extends Controller
         $this->productUpdateService = $productUpdateService;
         $this->productCreationService = $productCreationService;
     }
+
     public function create()
     {
         $types = ProductType::all();
@@ -52,7 +54,6 @@ final class AdminProductController extends Controller
 
     }
 
-
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -61,7 +62,7 @@ final class AdminProductController extends Controller
             'releaseDate' => 'required|date',
             'description' => 'required|string',
             'services' => 'nullable|array',
-            'custom_services' => 'nullable|array'
+            'custom_services' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -72,7 +73,7 @@ final class AdminProductController extends Controller
 
         $errorMassage = $this->productCreationService->validateRequest($request);
 
-        if($errorMassage!==null){
+        if ($errorMassage !== null) {
             return redirect('/admin/products/create')
                 ->withErrors($errorMassage)
                 ->withInput();
@@ -83,10 +84,10 @@ final class AdminProductController extends Controller
         $product = new Product();
         $product->name = $request->input('name');
         $product->uuId = Str::uuid();
-        $product->product_type_id = $company_productType[1] -> id;
+        $product->product_type_id = $company_productType[1]->id;
         $product->price = $request->input('price');
         $product->release_date = $request->input('releaseDate');
-        $product->company_id = $company_productType[0] -> id;
+        $product->company_id = $company_productType[0]->id;
         $product->description = $request->input('description');
         $product->save();
 
@@ -128,7 +129,7 @@ final class AdminProductController extends Controller
 
         $product->services()->detach();
 
-        $this -> productUpdateService -> connectServices($request, $product);
+        $this->productUpdateService->connectServices($request, $product);
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }

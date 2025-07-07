@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\AuthorisedUser;
 use App\Models\Company;
-use App\Models\Login;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\Service;

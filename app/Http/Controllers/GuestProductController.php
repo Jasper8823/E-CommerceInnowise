@@ -6,18 +6,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductType;
-use App\Services\ProductCreationService;
 use App\Services\ProductQueryService;
 use Illuminate\Http\Request;
-use function PHPUnit\Framework\isEmpty;
 
 final class GuestProductController extends Controller
 {
     protected ProductQueryService $productQueryService;
+
     public function __construct(ProductQueryService $productQueryService)
     {
         $this->productQueryService = $productQueryService;
     }
+
     public function index(Request $request)
     {
         $query = $this->productQueryService->getBuilder($request);
