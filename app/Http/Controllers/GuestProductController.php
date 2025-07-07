@@ -6,14 +6,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductType;
+use App\Services\ProductCreationService;
 use App\Services\ProductQueryService;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use function PHPUnit\Framework\isEmpty;
 
 final class GuestProductController extends Controller
 {
-    protected $productQueryService;
-
+    protected ProductQueryService $productQueryService;
     public function __construct(ProductQueryService $productQueryService)
     {
         $this->productQueryService = $productQueryService;
@@ -25,7 +25,6 @@ final class GuestProductController extends Controller
         $products = $query->paginate(30);
 
         return view('product.guest.products', ['products' => $products, 'types' => $types]);
-
     }
 
     public function show($id)

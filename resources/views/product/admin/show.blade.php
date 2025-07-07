@@ -1,6 +1,10 @@
 <x-body>
     <div class="w-full px-6 bg-white space-y-6 ml-[300px]">
         <h2 class="text-4xl font-bold text-gray-900">{{ $product->name }}</h2>
+        <a style="position: absolute; left: 75%; top: 180px;" onclick="window.location.href='/admin/products/{{$product->uuId}}/edit'"
+           class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
+            Edit Product
+        </a>
 
         <p class="text-base text-gray-600">{{ $product -> type -> name  }}</p>
 
@@ -10,7 +14,7 @@
 
         <p class="text-3xl font-semibold text-green-700">${{ number_format($product->price, 2) }}</p>
 
-        <p class="text-sm text-gray-500">Released: {{ date('d F Y', strtotime($product->releaseDate)) }}</p>
+        <p class="text-sm text-gray-500">Released: {{ date('d F Y', strtotime($product->release_date)) }}</p>
         <h3 class="text-2xl font-semibold mt-10">Services:</h3>
         <ul role="list" class="divide-y divide-gray-200">
             @foreach($product->services as $service)
@@ -18,7 +22,7 @@
                     <div class="space-y-2">
                         <span class="font-medium text-gray-900 text-lg">{{ $service->name }}</span>
                         <input type="checkbox" class="form-checkbox h-5 w-5 text-green-700" data-price="{{ $service->pivot->price }}">
-                        <div class="font-semibold text-gray-900">Days needed: {{ number_format($service->pivot->daysNeeded) }}</div>
+                        <div class="font-semibold text-gray-900">Days needed: {{ number_format($service->pivot->days_needed) }}</div>
                         <div class="font-semibold text-green-700">Price: ${{ number_format($service->pivot->price, 2) }}</div>
                     </div>
                 </div>

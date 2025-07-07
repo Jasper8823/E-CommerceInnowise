@@ -22,6 +22,12 @@ final class Product extends Model
         'description',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'uuId';
+    }
+
+
     public function type()
     {
         return $this->belongsTo(ProductType::class, 'product_type_id');

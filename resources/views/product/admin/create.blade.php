@@ -1,5 +1,5 @@
 <x-body>
-    <form method="POST" action="/products">
+    <form method="POST" action="/admin/products">
         @csrf
         <div class="space-y-6 pr-40 pl-40">
 

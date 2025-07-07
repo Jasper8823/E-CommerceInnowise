@@ -11,9 +11,8 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::resources([
-        'admin/products' => AdminProductController::class
-    ]);
+    Route::resource('admin/products', AdminProductController::class)->names('admin.products');
+
 });
 
 Route::resources([

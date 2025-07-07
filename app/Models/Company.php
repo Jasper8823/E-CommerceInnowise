@@ -11,10 +11,5 @@ final class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'total_income'];
-
-    public function users()
-    {
-        return $this->hasMany(AuthorisedUser::class);
-    }
+    protected $fillable = ['name'];
 }

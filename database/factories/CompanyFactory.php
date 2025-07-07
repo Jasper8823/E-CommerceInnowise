@@ -14,8 +14,7 @@ final class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company,
-            'total_income' => $this->faker->numberBetween(0),
+            'name' => $this->faker->company
         ];
     }
 }

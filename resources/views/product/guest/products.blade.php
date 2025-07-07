@@ -67,7 +67,7 @@
                                 <div>
                                     <div onclick="window.location.href='/products/{{$product->uuId}}'">
                                         <p class="text-green-600 font-bold text-base mb-1">${{$product->price}}</p>
-                                        <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->releaseDate)) }}</p>
+                                        <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->release_date)) }}</p>
                                     </div>
                                 </div>
                             </div>
