@@ -6,14 +6,18 @@
             <div class="flex h-16 items-center justify-between">
                 <div class="flex items-center">
                     <div class="shrink-0">
-                        <img class="size-8" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+                        <img class="size-8"
+                             src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
+                             alt="Your Company">
                     </div>
                     <div class="hidden md:block">
                         <div style="display:inline-block" class="ml-10 flex items-baseline space-x-4">
                             @php
-                                $productLink = auth()->check() ? '/admin/products' : '/products';
+                                use App\Models\CurrencyRate;$productLink = auth()->check() ? '/admin/products' : '/products';
                             @endphp
-                            <x-nav-link href="{{ $productLink }}" :active="request()->is('products') || request()->is('admin/products')">Products</x-nav-link>
+                            <x-nav-link href="{{ $productLink }}"
+                                        :active="request()->is('products') || request()->is('admin/products')">Products
+                            </x-nav-link>
                         </div>
                         <div style="display:inline-block;position:absolute; right: 250px">
                             @guest()
@@ -24,11 +28,14 @@
                                 <div style="position: relative; top: -13px;">
                                     <form method="POST" action="{{ route('logout') }}" style="display: inline">
                                         @csrf
-                                        <button type="submit" class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium" style="margin: 5px">
+                                        <button type="submit"
+                                                class="text-white hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium"
+                                                style="margin: 5px">
                                             Log Out
                                         </button>
                                     </form>
-                                    <x-nav-link style="margin: 5px" href="/admin/products/create">Create Product</x-nav-link>
+                                    <x-nav-link style="margin: 5px" href="/admin/products/create">Create Product
+                                    </x-nav-link>
                                 </div>
                             @endauth
                         </div>

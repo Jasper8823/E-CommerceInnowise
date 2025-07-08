@@ -48,11 +48,18 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
             $table->timestamps();
         });
+
+        Schema::create('currency_rates', function (Blueprint $table) {
+            $table->id();
+            $table->string('currency');
+            $table->decimal('rate');
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('logins');
+        Schema::dropIfExists('currency_rates');
         Schema::dropIfExists('users');
         Schema::dropIfExists('product_service');
         Schema::dropIfExists('services');

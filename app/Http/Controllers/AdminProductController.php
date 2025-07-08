@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\CurrencyRate;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Services\ProductCreationService;
@@ -42,15 +43,27 @@ final class AdminProductController extends Controller
         $query = $this->productQueryService->getBuilder($request);
         $products = $query->paginate(30);
         $types = ProductType::all();
+        $ratesDB = CurrencyRate::all();
+        $rates = [];
 
-        return view('product.admin.products', ['products' => $products, 'types' => $types]);
+        foreach ($ratesDB as $rate) {
+            $rates[$rate->currency] = $rate->rate;
+        }
+
+        return view('product.admin.products', ['products' => $products, 'types' => $types, 'rates' => $rates]);
     }
 
     public function show($id)
     {
         $product = Product::all()->where('uuId', $id)->first();
+        $ratesDB = CurrencyRate::all();
+        $rates = [];
 
-        return view('product.admin.show', ['product' => $product]);
+        foreach ($ratesDB as $rate) {
+            $rates[$rate->currency] = $rate->rate;
+        }
+
+        return view('product.admin.show', ['product' => $product, 'rates' => $rates]);
 
     }
 

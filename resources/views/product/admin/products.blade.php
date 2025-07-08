@@ -1,4 +1,50 @@
 <x-body>
+    <script>
+            const exchangeRates = {
+            USD: {{ $rates['USD'] ?? 'null' }},
+            EUR: 1,
+            PLN: {{ $rates['PLN'] ?? 'null' }}
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const currencySelector = document.getElementById("currency-selector");
+            const prices = document.querySelectorAll(".product-price");
+
+            function formatPrice(value, currency) {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency
+                }).format(value);
+            }
+
+            function updatePrices(currency) {
+                const rate = exchangeRates[currency];
+                prices.forEach(priceElem => {
+                    const priceValue = parseFloat(priceElem.dataset.price);
+                    const converted = priceValue * rate;
+                    priceElem.textContent = formatPrice(converted, currency);
+                });
+            }
+
+            updatePrices(currencySelector.value);
+
+            currencySelector.addEventListener("change", function () {
+                updatePrices(this.value);
+            });
+        });
+    </script>
+    <div style="position: absolute; top: 12px; right:10px" class="w-48">
+        <select id="currency-selector"
+                class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
+            <option value="USD">USD</option>
+            @if($rates['EUR']!=null)
+                <option value="EUR">EUR</option>
+            @endif
+            @if($rates['PLN']!=null)
+                <option value="PLN">PLN</option>
+            @endif
+        </select>
+    </div>
     <div class="px-[200px] mb-6">
         <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
             @csrf
@@ -51,7 +97,6 @@
                 </button>
             </div>
         </form>
-
     </div>
     <div class="bg-gray-100 py-8 px-4">
         <div class="max-w-7xl mx-auto">
@@ -66,7 +111,10 @@
                                 </div>
                                 <div>
                                     <div onclick="window.location.href='/products/{{$product->uuId}}'">
-                                        <p class="text-green-600 font-bold text-base mb-1">${{$product->price}}</p>
+                                        <p class="product-price text-green-600 font-bold text-base mb-1"
+                                           data-price="{{ $product->price }}">
+                                            ${{ $product->price }}
+                                        </p>
                                         <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->release_date)) }}</p>
                                     </div>
                                         <form method="POST" action="/products/{{ $product->id }}" onsubmit="return confirm('Are you sure you want to delete this product?');">

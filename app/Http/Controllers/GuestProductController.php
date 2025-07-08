@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\CurrencyRate;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Services\ProductQueryService;
@@ -23,14 +24,26 @@ final class GuestProductController extends Controller
         $query = $this->productQueryService->getBuilder($request);
         $types = ProductType::all();
         $products = $query->paginate(30);
+        $ratesDB = CurrencyRate::all();
+        $rates = [];
 
-        return view('product.guest.products', ['products' => $products, 'types' => $types]);
+        foreach ($ratesDB as $rate) {
+            $rates[$rate->currency] = $rate->rate;
+        }
+
+        return view('product.guest.products', ['products' => $products, 'types' => $types, 'rates' => $rates]);
     }
 
     public function show($id)
     {
         $product = Product::all()->where('uuId', $id)->first();
+        $ratesDB = CurrencyRate::all();
+        $rates = [];
 
-        return view('product.guest.show', ['product' => $product]);
+        foreach ($ratesDB as $rate) {
+            $rates[$rate->currency] = $rate->rate;
+        }
+
+        return view('product.guest.show', ['product' => $product, 'rates' => $rates]);
     }
 }

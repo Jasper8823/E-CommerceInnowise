@@ -91,7 +91,17 @@ final class ProductCreationService
     {
         if ($request->filled('custom_services')) {
             $customServices = $request->input('custom_services');
-            foreach ($customServices as $customService) {
+            foreach ($customServices as $index => $customService) {
+                $validator = Validator::make($customService, [
+                    'name' => 'required|string|min:2|max:64',
+                    'price' => 'required|numeric|min:0',
+                    'daysNeeded' => 'required|integer|min:0',
+                ]);
+
+                if ($validator->fails()) {
+                    continue;
+                }
+
                 $service = new Service();
                 $service->name = $customService['name'];
                 $service->save();
@@ -102,28 +112,34 @@ final class ProductCreationService
                 ]);
             }
         }
-        $services = $request->input('services');
+
+        $services = $request->input('services', []);
         foreach ($services as $serviceName => $serviceData) {
             if (! isset($serviceData['enabled'])) {
                 continue;
             }
 
+            $validator = Validator::make($serviceData + ['name' => $serviceName], [
+                'price' => 'required|numeric|min:0',
+                'daysNeeded' => 'required|integer|min:0',
+            ]);
+
+            if ($validator->fails()) {
+                continue;
+            }
+
             $service = Service::where('name', $serviceName)->first();
-            if ($service) {
-                $product->services()->attach($service->id, [
-                    'price' => $serviceData['price'],
-                    'days_needed' => $serviceData['daysNeeded'],
-                ]);
-            } else {
+
+            if (! $service) {
                 $service = new Service();
                 $service->name = $serviceName;
                 $service->save();
-
-                $product->services()->attach($service->id, [
-                    'price' => $serviceData['price'],
-                    'days_needed' => $serviceData['daysNeeded'],
-                ]);
             }
+
+            $product->services()->attach($service->id, [
+                'price' => $serviceData['price'],
+                'days_needed' => $serviceData['daysNeeded'],
+            ]);
         }
     }
 }
