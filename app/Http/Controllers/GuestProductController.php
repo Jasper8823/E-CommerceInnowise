@@ -31,10 +31,16 @@ final class GuestProductController extends Controller
             $rates[$rate->currency] = $rate->rate;
         }
 
-        return view('product.guest.products', ['products' => $products, 'types' => $types, 'rates' => $rates]);
+        if ($request->filled('currency-selector')) {
+            $rate = $request->input('currency-selector');
+        }else{
+            $rate = 'USD';
+        }
+
+        return view('product.guest.products', ['products' => $products, 'types' => $types, 'rates' => $rates, 'rate' => $rate]);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $product = Product::all()->where('uuId', $id)->first();
         $ratesDB = CurrencyRate::all();
@@ -44,6 +50,12 @@ final class GuestProductController extends Controller
             $rates[$rate->currency] = $rate->rate;
         }
 
-        return view('product.guest.show', ['product' => $product, 'rates' => $rates]);
+        if ($request->filled('currency-selector')) {
+            $rate = $request->input('currency-selector');
+        }else{
+            $rate = 'USD';
+        }
+
+        return view('product.guest.show', ['product' => $product, 'rates' => $rates, 'rate' => $rate]);
     }
 }

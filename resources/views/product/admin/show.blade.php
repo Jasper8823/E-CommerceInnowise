@@ -1,72 +1,8 @@
 <x-body>
-    <script>
-        const exchangeRates = {
-            USD: {{ $rates['USD'] ?? 'null' }},
-            EUR: 1,
-            PLN: {{ $rates['PLN'] ?? 'null' }}
-        };
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const currencySelector = document.getElementById("currency-selector");
-            const prices = document.querySelectorAll(".update-price");
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            const totalPriceElem = document.getElementById('totalPrice');
-            const productPrice = {{ $product->price }};
-
-            function formatPrice(value, currency) {
-                return new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: currency
-                }).format(value);
-            }
-
-            function updatePrices(currency) {
-                const rate = exchangeRates[currency];
-                prices.forEach(priceElem => {
-                    const priceValue = parseFloat(priceElem.dataset.price);
-                    const converted = priceValue * rate;
-                    priceElem.textContent = formatPrice(converted, currency);
-                });
-            }
-
-            updatePrices(currencySelector.value);
-
-            currencySelector.addEventListener("change", function () {
-                updatePrices(this.value);
-            });
-
-            checkboxes.forEach(function (checkbox) {
-                checkbox.addEventListener('change', function () {
-                    let totalPrice = productPrice;
-                    checkboxes.forEach(function (checkbox) {
-                        if (checkbox.checked) {
-                            totalPrice += parseFloat(checkbox.getAttribute('data-price'));
-                        }
-                    });
-
-                    totalPriceElem.dataset.price = totalPrice;
-
-                    totalPriceElem.textContent = formatPrice(totalPrice * exchangeRates[currencySelector.value], currencySelector.value);
-                });
-            });
-        });
-    </script>
     <a style="position: absolute; left: 75%; top: 180px;" onclick="window.location.href='/admin/products/{{$product->uuId}}/edit'"
        class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
         Edit Product
     </a>
-    <div style="position: absolute; top: 12px; right:10px" class="w-48">
-        <select id="currency-selector"
-                class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
-            <option value="USD">USD</option>
-            @if($rates['EUR']!=null)
-                <option value="EUR">EUR</option>
-            @endif
-            @if($rates['PLN']!=null)
-                <option value="PLN">PLN</option>
-            @endif
-        </select>
-    </div>
     <div class="w-full px-6 bg-white space-y-6 ml-[300px]">
         <h2 class="text-4xl font-bold text-gray-900">{{ $product->name }}</h2>
 

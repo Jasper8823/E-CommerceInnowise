@@ -42,4 +42,32 @@ final class Product extends Model
         return $this->belongsToMany(Service::class, 'product_service')
             ->withPivot('price', 'days_needed');
     }
+
+    public function getPrice($currency, $price)
+    {
+        $rate = CurrencyRate::where('currency', $currency)->first();
+
+        if (!$rate) {
+            return 'Currency rate not found for ' . $currency;
+        }
+
+        $convertedPrice = $price * $rate->rate;
+
+        switch ($currency) {
+            case 'USD':
+                $formattedPrice = '$ ' . number_format($convertedPrice, 2);
+                break;
+            case 'PLN':
+                $formattedPrice = 'PLN ' . number_format($convertedPrice, 2);
+                break;
+            case 'EUR':
+                $formattedPrice = '€ ' . number_format($convertedPrice, 2);
+                break;
+            default:
+                $formattedPrice = 'Unsupported currency';
+                break;
+        }
+
+        return $formattedPrice;
+    }
 }

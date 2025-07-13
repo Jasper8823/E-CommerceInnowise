@@ -13,8 +13,8 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('/admin/products/export', [AdminProductController::class, 'export'])->name('admin.products.export');
     Route::resource('admin/products', AdminProductController::class)->names('admin.products');
-
 });
 
 Route::resources([
