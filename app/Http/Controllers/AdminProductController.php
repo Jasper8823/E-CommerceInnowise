@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExportProductJob;
 use App\Models\Company;
 use App\Models\CurrencyRate;
 use App\Models\Product;
@@ -38,19 +39,28 @@ final class AdminProductController extends Controller
         return view('product.admin.create', ['types' => $types, 'companies' => $companies]);
     }
 
+    public function export(Request $request)
+    {
+        $products = Product::all();
+        $chunks = $products->chunk(100);
+        $lastIndex = $chunks->count() - 1;
+
+        foreach ($chunks as $index => $chunk) {
+            $isLast = $index === $lastIndex;
+            $isFirst = $index === 0;
+            ExportProductJob::dispatch($chunk->toArray(), $isFirst, $isLast);
+        }
+
+        return redirect()->back()->with('success', 'Экспорт запущен!');
+    }
+
     public function index(Request $request)
     {
         $query = $this->productQueryService->getBuilder($request);
         $products = $query->paginate(30);
         $types = ProductType::all();
-        $ratesDB = CurrencyRate::all();
-        $rates = [];
 
-        foreach ($ratesDB as $rate) {
-            $rates[$rate->currency] = $rate->rate;
-        }
-
-        return view('product.admin.products', ['products' => $products, 'types' => $types, 'rates' => $rates]);
+        return view('product.admin.products', ['products' => $products, 'types' => $types]);
     }
 
     public function show($id)
@@ -63,7 +73,7 @@ final class AdminProductController extends Controller
             $rates[$rate->currency] = $rate->rate;
         }
 
-        return view('product.admin.show', ['product' => $product, 'rates' => $rates]);
+        return view('product.admin.show', ['product' => $product]);
 
     }
 

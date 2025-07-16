@@ -33,7 +33,7 @@ final class GuestProductController extends Controller
 
         if ($request->filled('currency-selector')) {
             $rate = $request->input('currency-selector');
-        }else{
+        } else {
             $rate = 'USD';
         }
 
@@ -52,7 +52,7 @@ final class GuestProductController extends Controller
 
         if ($request->filled('currency-selector')) {
             $rate = $request->input('currency-selector');
-        }else{
+        } else {
             $rate = 'USD';
         }
 

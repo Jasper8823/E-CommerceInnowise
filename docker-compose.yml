@@ -22,11 +22,13 @@ services:
         networks:
             - sail
         depends_on:
+            - rabbitmq
             - pgsql
             - redis
             - meilisearch
             - mailpit
             - selenium
+            - localstack
     localstack:
         image: localstack/localstack:latest
         container_name: localstack
@@ -42,6 +44,8 @@ services:
         volumes:
             - "./localstack:/tmp/localstack_tmp"
             - "/var/run/docker.sock:/var/run/docker.sock"
+        networks:
+            - sail
     pgsql:
         image: 'postgres:13'
         container_name: laravel-db
@@ -102,6 +106,17 @@ services:
             - 'host.docker.internal:host-gateway'
         volumes:
             - '/dev/shm:/dev/shm'
+        networks:
+            - sail
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        ports:
+            - "5672:5672"     # для AMQP
+            - "15672:15672"   # для веб-интерфейса RabbitMQ
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
         networks:
             - sail
 networks:

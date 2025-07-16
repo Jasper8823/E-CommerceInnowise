@@ -19,7 +19,7 @@ final class DatabaseSeeder extends Seeder
     {
         Company::factory()->count(10)->create();
         ProductType::factory()->count(10)->create();
-        Product::factory()->count(100)->create();
+        Product::factory()->count(1000)->create();
         Service::factory()->count(100)->create();
 
         $products = Product::all();

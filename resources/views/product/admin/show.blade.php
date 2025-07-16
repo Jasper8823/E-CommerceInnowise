@@ -12,7 +12,7 @@
 
         <div class="text-base text-gray-800 leading-relaxed">{{ $product->description }}</div>
 
-        <p class="update-price text-3xl font-semibold text-green-700" data-price="{{ $product->price }}">${{ number_format($product->price, 2) }}</p>
+        <p class="update-price text-3xl font-semibold text-green-700" data-price="{{ $product->price }}">€ {{ number_format($product->price, 2) }}</p>
 
         <p class="text-sm text-gray-500">Released: {{ date('d F Y', strtotime($product->release_date)) }}</p>
         <h3 class="text-2xl font-semibold mt-10">Services:</h3>
@@ -23,7 +23,7 @@
                         <span class="font-medium text-gray-900 text-lg">{{ $service->name }}</span>
                         <input type="checkbox" class="form-checkbox h-5 w-5 text-green-700" data-price="{{ $service->pivot->price }}">
                         <div class="font-semibold text-gray-900">Days needed: {{ number_format($service->pivot->days_needed) }}</div>
-                        <div class="update-price font-semibold text-green-700" data-price="{{ $service->pivot->price }}">Price: ${{ number_format($service->pivot->price, 2) }}</div>
+                        <div class="update-price font-semibold text-green-700" data-price="{{ $service->pivot->price }}">Price: € {{ number_format($service->pivot->price, 2) }}</div>
                     </div>
                 </div>
             @endforeach
@@ -35,3 +35,29 @@
         </div>
     </div>
 </x-body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const totalPriceElem = document.getElementById("totalPrice");
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][data-price]');
+        const basePrice = parseFloat(totalPriceElem.dataset.price);
+
+        function updateTotalPrice() {
+            let total = basePrice;
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    total += parseFloat(checkbox.dataset.price);
+                }
+            });
+
+            totalPriceElem.textContent = '€ ' + total.toFixed(2);
+        }
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTotalPrice);
+        });
+
+        updateTotalPrice();
+    });
+</script>
