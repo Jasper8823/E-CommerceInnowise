@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 final class ProductUpdateService
 {
-    public function connectServices(Request $request, Product $product)
+    public function connectServices(Request $request, Product $product): void
     {
         foreach ($request->input('services', []) as $serviceData) {
             if (! isset($serviceData['name'], $serviceData['price'], $serviceData['daysNeeded'])) {

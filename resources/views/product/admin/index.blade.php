@@ -16,20 +16,20 @@
                 @if(count($products) > 0)
                     @foreach($products as $product)
                             <div class="bg-white rounded-lg shadow p-4 flex flex-col justify-between">
-                                <div onclick="window.location.href='/admin/products/{{$product->uuId}}'">
+                                <div onclick="window.location.href='/admin/products/{{$product->uuid}}'">
                                     <h2 class="text-lg font-semibold text-gray-800">{{ $product->name }}</h2>
                                     <p class="text-sm text-gray-500 mb-2">{{ $product -> manufacturer-> name }}</p>
                                     <p class="text-gray-700 text-sm mb-4">{{ $product->description }}</p>
                                 </div>
                                 <div>
-                                    <div onclick="window.location.href='/products/{{$product->uuId}}'">
+                                    <div onclick="window.location.href='/products/{{$product->uuid}}'">
                                         <p class="update-price text-green-600 font-bold text-base mb-1"
                                            data-price="{{ $product->price }}">
                                             € {{ $product->price }}
                                         </p>
                                         <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->release_date)) }}</p>
                                     </div>
-                                        <form method="POST" action="/products/{{ $product->id }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                        <form method="POST" action="products/{{ $product->id }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
                                             @csrf
                                             @method('DELETE')
                                             <button

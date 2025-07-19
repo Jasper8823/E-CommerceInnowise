@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 final class Service extends Model
 {
@@ -13,13 +14,13 @@ final class Service extends Model
 
     protected $fillable = ['name'];
 
-    public function products()
+    public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'product_service')
             ->withPivot('price', 'days_needed');
     }
 
-    public function getPrice($currency, $price)
+    public function getPrice($currency, $price): string
     {
         $rate = CurrencyRate::where('currency', $currency)->first();
 

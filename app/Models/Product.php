@@ -7,13 +7,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 final class Product extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'uuId',
+        'uuid',
         'product_type_id',
         'name',
         'price',
@@ -24,10 +25,10 @@ final class Product extends Model
 
     public function getRouteKeyName()
     {
-        return 'uuId';
+        return 'uuid';
     }
 
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(ProductType::class, 'product_type_id');
     }
@@ -37,13 +38,13 @@ final class Product extends Model
         return $this->belongsTo(Company::class, 'company_id');
     }
 
-    public function services()
+    public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'product_service')
             ->withPivot('price', 'days_needed');
     }
 
-    public function getPrice($currency, $price)
+    public function getPrice($currency, $price): string
     {
         $rate = CurrencyRate::where('currency', $currency)->first();
 
@@ -53,21 +54,11 @@ final class Product extends Model
 
         $convertedPrice = $price * $rate->rate;
 
-        switch ($currency) {
-            case 'USD':
-                $formattedPrice = '$ '.number_format($convertedPrice, 2);
-                break;
-            case 'PLN':
-                $formattedPrice = 'PLN '.number_format($convertedPrice, 2);
-                break;
-            case 'EUR':
-                $formattedPrice = '€ '.number_format($convertedPrice, 2);
-                break;
-            default:
-                $formattedPrice = 'Unsupported currency';
-                break;
-        }
-
-        return $formattedPrice;
+        return match ($currency) {
+            'USD' => '$ '.number_format($convertedPrice, 2),
+            'PLN' => 'PLN '.number_format($convertedPrice, 2),
+            'EUR' => '€ '.number_format($convertedPrice, 2),
+            default => 'Unsupported currency',
+        };
     }
 }

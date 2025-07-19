@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\DefaultService;
+use App\Http\Requests\ProductFilterRequest;
+use App\Http\Requests\StoreProductRequest;
 use App\Jobs\ExportProductJob;
 use App\Models\Company;
 use App\Models\CurrencyRate;
@@ -12,24 +15,15 @@ use App\Models\ProductType;
 use App\Services\ProductCreationService;
 use App\Services\ProductQueryService;
 use App\Services\ProductUpdateService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 final class AdminProductController extends Controller
 {
-    protected ProductQueryService $productQueryService;
-
-    protected ProductCreationService $productCreationService;
-
-    protected ProductUpdateService $productUpdateService;
-
-    public function __construct(ProductQueryService $productQueryService, ProductCreationService $productCreationService, ProductUpdateService $productUpdateService)
-    {
-        $this->productQueryService = $productQueryService;
-        $this->productUpdateService = $productUpdateService;
-        $this->productCreationService = $productCreationService;
-    }
+    public function __construct(
+        protected ProductQueryService $productQueryService,
+        protected ProductCreationService $productCreationService,
+        protected ProductUpdateService $productUpdateService
+    ) {}
 
     public function create()
     {
@@ -39,7 +33,7 @@ final class AdminProductController extends Controller
         return view('product.admin.create', ['types' => $types, 'companies' => $companies]);
     }
 
-    public function export(Request $request)
+    public function export()
     {
         $products = Product::all();
         $chunks = $products->chunk(100);
@@ -51,21 +45,24 @@ final class AdminProductController extends Controller
             ExportProductJob::dispatch($chunk->toArray(), $isFirst, $isLast);
         }
 
-        return redirect()->back()->with('success', 'Экспорт запущен!');
+        return redirect()->back()->with('success', 'Export started!');
     }
 
-    public function index(Request $request)
+    public function index(ProductFilterRequest $request)
     {
         $query = $this->productQueryService->getBuilder($request);
         $products = $query->paginate(30);
         $types = ProductType::all();
 
-        return view('product.admin.products', ['products' => $products, 'types' => $types]);
+        return view('product.admin.index', [
+            'products' => $products,
+            'types' => $types,
+        ]);
     }
 
     public function show($id)
     {
-        $product = Product::all()->where('uuId', $id)->first();
+        $product = Product::all()->where('uuid', $id)->first();
         $ratesDB = CurrencyRate::all();
         $rates = [];
 
@@ -77,41 +74,30 @@ final class AdminProductController extends Controller
 
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'price' => 'required|integer|min:0',
-            'releaseDate' => 'required|date',
-            'description' => 'required|string',
-            'services' => 'nullable|array',
-            'custom_services' => 'nullable|array',
+        $product_type_id = $request->product_type_id;
+        if (! $product_type_id && $request->filled('new_product_type')) {
+            $product_type = ProductType::firstOrCreate(['name' => $request->new_product_type]);
+            $product_type_id = $product_type->id;
+        }
+
+        $company_id = $request->company_id;
+        if (! $company_id && $request->filled('new_company')) {
+            $company = Company::firstOrCreate(['name' => $request->new_company]);
+            $company_id = $company->id;
+        }
+
+        $product = new Product([
+            'name' => $request->input('name'),
+            'uuid' => Str::uuid(),
+            'product_type_id' => $product_type_id,
+            'price' => $request->input('price'),
+            'release_date' => $request->input('releaseDate'),
+            'company_id' => $company_id,
+            'description' => $request->input('description'),
         ]);
 
-        if ($validator->fails()) {
-            return redirect('/admin/products/create')
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $errorMassage = $this->productCreationService->validateRequest($request);
-
-        if ($errorMassage !== null) {
-            return redirect('/admin/products/create')
-                ->withErrors($errorMassage)
-                ->withInput();
-        }
-
-        $company_productType = $this->productCreationService->createConnectedObjects($request);
-
-        $product = new Product();
-        $product->name = $request->input('name');
-        $product->uuId = Str::uuid();
-        $product->product_type_id = $company_productType[1]->id;
-        $product->price = $request->input('price');
-        $product->release_date = $request->input('releaseDate');
-        $product->company_id = $company_productType[0]->id;
-        $product->description = $request->input('description');
         $product->save();
 
         $this->productCreationService->attachServices($product, $request);
@@ -119,9 +105,9 @@ final class AdminProductController extends Controller
         return redirect('/admin/products')->with('success', 'Product created successfully!');
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
-        $product = Product::all()->where('id', $id)->first();
+        $product = Product::where('id', $id)->first();
         $product->delete();
 
         return redirect('/');
@@ -129,25 +115,37 @@ final class AdminProductController extends Controller
 
     public function edit($id)
     {
-        $product = Product::with(['type', 'manufacturer', 'services'])->where('uuId', $id)->firstOrFail();
+        $product = Product::with(['type', 'manufacturer', 'services'])->where('uuid', $id)->firstOrFail();
         $types = ProductType::all();
         $companies = Company::all();
-        $defaultServices = ['Service', 'Delivery', 'Installation', 'Configuration'];
+        $defaultServices = DefaultService::names();
 
         return view('product.admin.edit', compact('product', 'types', 'companies', 'defaultServices'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(StoreProductRequest $request, string $id)
     {
-        $product = Product::where('uuId', $id)->firstOrFail();
+        $product = Product::where('uuid', $id)->firstOrFail();
+
+        $product_type_id = $request->product_type_id;
+        if (! $product_type_id && $request->filled('new_product_type')) {
+            $product_type = ProductType::firstOrCreate(['name' => $request->new_product_type]);
+            $product_type_id = $product_type->id;
+        }
+
+        $company_id = $request->company_id;
+        if (! $company_id && $request->filled('new_company')) {
+            $company = Company::firstOrCreate(['name' => $request->new_company]);
+            $company_id = $company->id;
+        }
 
         $product->update([
             'name' => $request->name,
             'price' => $request->price,
             'description' => $request->description,
             'release_date' => $request->releaseDate,
-            'product_type_id' => $request->product_type_id ?? ProductType::firstOrCreate(['name' => $request->new_product_type])->id,
-            'company_id' => $request->company_id ?? Company::firstOrCreate(['name' => $request->new_company])->id,
+            'product_type_id' => $product_type_id,
+            'company_id' => $company_id,
         ]);
 
         $product->services()->detach();

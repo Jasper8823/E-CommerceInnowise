@@ -1,5 +1,5 @@
 <x-body>
-    <form method="POST" action="{{ route('admin.products.update', $product->uuId) }}">
+    <form method="POST" action="{{ route('admin.products.update', $product->uuid) }}">
         @csrf
         @method('PUT')
 

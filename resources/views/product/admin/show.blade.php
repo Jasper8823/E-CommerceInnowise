@@ -1,5 +1,5 @@
 <x-body>
-    <a style="position: absolute; left: 75%; top: 180px;" onclick="window.location.href='/admin/products/{{$product->uuId}}/edit'"
+    <a style="position: absolute; left: 75%; top: 180px;" onclick="window.location.href='/admin/products/{{$product->uuid}}/edit'"
        class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
         Edit Product
     </a>

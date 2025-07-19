@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductFilterRequest;
 use App\Models\CurrencyRate;
 use App\Models\Product;
 use App\Models\ProductType;
@@ -19,7 +20,7 @@ final class GuestProductController extends Controller
         $this->productQueryService = $productQueryService;
     }
 
-    public function index(Request $request)
+    public function index(ProductFilterRequest $request)
     {
         $query = $this->productQueryService->getBuilder($request);
         $types = ProductType::all();
@@ -28,33 +29,33 @@ final class GuestProductController extends Controller
         $rates = [];
 
         foreach ($ratesDB as $rate) {
-            $rates[$rate->currency] = $rate->rate;
+            $rates = CurrencyRate::pluck('rate', 'currency');
         }
 
-        if ($request->filled('currency-selector')) {
-            $rate = $request->input('currency-selector');
-        } else {
-            $rate = 'USD';
-        }
+        $allowedRates = ['USD', 'EUR', 'PLN'];
 
-        return view('product.guest.products', ['products' => $products, 'types' => $types, 'rates' => $rates, 'rate' => $rate]);
+        $rate = in_array($request->input('currency-selector'), $allowedRates)
+            ? $request->input('currency-selector')
+            : 'USD';
+
+        return view('product.guest.index', ['products' => $products, 'types' => $types, 'rates' => $rates, 'rate' => $rate]);
     }
 
     public function show($id, Request $request)
     {
-        $product = Product::all()->where('uuId', $id)->first();
+        $product = Product::all()->where('uuid', $id)->first();
         $ratesDB = CurrencyRate::all();
         $rates = [];
 
         foreach ($ratesDB as $rate) {
-            $rates[$rate->currency] = $rate->rate;
+            $rates = CurrencyRate::pluck('rate', 'currency');
         }
 
-        if ($request->filled('currency-selector')) {
-            $rate = $request->input('currency-selector');
-        } else {
-            $rate = 'USD';
-        }
+        $allowedRates = ['USD', 'EUR', 'PLN'];
+
+        $rate = in_array($request->input('currency-selector'), $allowedRates)
+            ? $request->input('currency-selector')
+            : 'USD';
 
         return view('product.guest.show', ['product' => $product, 'rates' => $rates, 'rate' => $rate]);
     }

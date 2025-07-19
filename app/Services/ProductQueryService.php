@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Http\Requests\ProductFilterRequest;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 
 final class ProductQueryService
 {
-    public function getBuilder(Request $request): Builder
+    public function getBuilder(ProductFilterRequest $request): Builder
     {
         $query = Product::query();
 
