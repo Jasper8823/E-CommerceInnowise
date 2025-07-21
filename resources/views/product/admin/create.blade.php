@@ -18,9 +18,6 @@
                         <option value="{{ $type->id }}">{{ $type->name }}</option>
                     @endforeach
                 </select>
-                <p class="mt-2 text-xl text-gray-500">or create new type:</p>
-                <input type="text" name="new_product_type" placeholder="New product type"
-                       class="p-4 mt-1 block w-full border-gray-300 rounded-md shadow-sm sm text-base">
             </div>
 
             <div>
@@ -36,16 +33,13 @@
             </div>
 
             <div>
-                <label for="company_id" class="block text-xl font-medium text-gray-700">Manufacturer</label>
-                <select name="company_id" id="company_id" required
+                <label for="manufacturer_id" class="block text-xl font-medium text-gray-700">Manufacturer</label>
+                <select name="manufacturer_id" id="manufacturer_id" required
                         class="p-4 mt-1 block w-full border-gray-300 rounded-md shadow-sm sm text-base">
-                    @foreach($companies as $company)
-                        <option value="{{ $company->id }}">{{ $company->name }}</option>
+                    @foreach($manufacturers as $manufacturer)
+                        <option value="{{ $manufacturer->id }}">{{ $manufacturer->name }}</option>
                     @endforeach
                 </select>
-                <p class="mt-2 text-xl text-gray-500">or create new manufacturer:</p>
-                <input type="text" name="new_company" placeholder="New company"
-                       class="p-4 mt-1 block w-full border-gray-300 rounded-md shadow-sm sm text-base">
             </div>
 
             <div>

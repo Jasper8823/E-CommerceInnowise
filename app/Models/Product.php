@@ -19,7 +19,7 @@ final class Product extends Model
         'name',
         'price',
         'release_date',
-        'company_id',
+        'manufacturer_id',
         'description',
     ];
 
@@ -35,7 +35,7 @@ final class Product extends Model
 
     public function manufacturer(): BelongsTo
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo(Manufacturer::class, 'manufacturer_id');
     }
 
     public function services(): BelongsToMany

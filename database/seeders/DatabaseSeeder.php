@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Company;
+use App\Models\Manufacturer;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\Service;
@@ -17,7 +17,7 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Company::factory()->count(10)->create();
+        Manufacturer::factory()->count(10)->create();
         ProductType::factory()->count(10)->create();
         Product::factory()->count(1000)->create();
         Service::factory()->count(100)->create();

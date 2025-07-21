@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Company;
+use App\Models\Manufacturer;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\User;
@@ -34,7 +34,7 @@ final class AdminProductControllerTest extends TestCase
 
     public function test_admin_can_create_product(): void
     {
-        $company = Company::factory()->create();
+        $company = Manufacturer::factory()->create();
         $type = ProductType::factory()->create();
 
         $response = $this->post('/admin/products', [
@@ -73,7 +73,7 @@ final class AdminProductControllerTest extends TestCase
             'description' => 'Updated description',
             'releaseDate' => '2025-01-01',
             'product_type_id' => ProductType::factory()->create()->id,
-            'company_id' => Company::factory()->create()->id,
+            'company_id' => Manufacturer::factory()->create()->id,
         ]);
 
         $response->assertRedirect(route('admin.products.index'));

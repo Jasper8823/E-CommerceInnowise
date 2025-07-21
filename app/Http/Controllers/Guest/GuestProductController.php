@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guest;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductFilterRequest;
 use App\Models\CurrencyRate;
 use App\Models\Product;

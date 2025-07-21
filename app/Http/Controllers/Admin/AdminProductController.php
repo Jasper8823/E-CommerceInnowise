@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Enums\DefaultService;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductFilterRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Jobs\ExportProductJob;
-use App\Models\Company;
 use App\Models\CurrencyRate;
+use App\Models\Manufacturer;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Services\ProductCreationService;
@@ -28,9 +29,9 @@ final class AdminProductController extends Controller
     public function create()
     {
         $types = ProductType::all();
-        $companies = Company::all();
+        $manufacturers = Manufacturer::all();
 
-        return view('product.admin.create', ['types' => $types, 'companies' => $companies]);
+        return view('product.admin.create', ['types' => $types, 'manufacturers' => $manufacturers]);
     }
 
     public function export()
@@ -76,25 +77,14 @@ final class AdminProductController extends Controller
 
     public function store(StoreProductRequest $request)
     {
-        $product_type_id = $request->product_type_id;
-        if (! $product_type_id && $request->filled('new_product_type')) {
-            $product_type = ProductType::firstOrCreate(['name' => $request->new_product_type]);
-            $product_type_id = $product_type->id;
-        }
-
-        $company_id = $request->company_id;
-        if (! $company_id && $request->filled('new_company')) {
-            $company = Company::firstOrCreate(['name' => $request->new_company]);
-            $company_id = $company->id;
-        }
 
         $product = new Product([
             'name' => $request->input('name'),
             'uuid' => Str::uuid(),
-            'product_type_id' => $product_type_id,
+            'product_type_id' => $request->input('product_type_id'),
             'price' => $request->input('price'),
             'release_date' => $request->input('releaseDate'),
-            'company_id' => $company_id,
+            'manufacturer_id' => $request->input('manufacturer_id'),
             'description' => $request->input('description'),
         ]);
 
@@ -117,35 +107,23 @@ final class AdminProductController extends Controller
     {
         $product = Product::with(['type', 'manufacturer', 'services'])->where('uuid', $id)->firstOrFail();
         $types = ProductType::all();
-        $companies = Company::all();
+        $manufacturers = Manufacturer::all();
         $defaultServices = DefaultService::names();
 
-        return view('product.admin.edit', compact('product', 'types', 'companies', 'defaultServices'));
+        return view('product.admin.edit', compact('product', 'types', 'manufacturers', 'defaultServices'));
     }
 
     public function update(StoreProductRequest $request, string $id)
     {
         $product = Product::where('uuid', $id)->firstOrFail();
 
-        $product_type_id = $request->product_type_id;
-        if (! $product_type_id && $request->filled('new_product_type')) {
-            $product_type = ProductType::firstOrCreate(['name' => $request->new_product_type]);
-            $product_type_id = $product_type->id;
-        }
-
-        $company_id = $request->company_id;
-        if (! $company_id && $request->filled('new_company')) {
-            $company = Company::firstOrCreate(['name' => $request->new_company]);
-            $company_id = $company->id;
-        }
-
         $product->update([
             'name' => $request->name,
             'price' => $request->price,
             'description' => $request->description,
             'release_date' => $request->releaseDate,
-            'product_type_id' => $product_type_id,
-            'company_id' => $company_id,
+            'product_type_id' => $request->input('product_type_id'),
+            'manufacturer_id' => $request->input('manufacturer_id'),
         ]);
 
         $product->services()->detach();

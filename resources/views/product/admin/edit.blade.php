@@ -17,7 +17,6 @@
                         <option value="{{ $type->id }}" {{ $product->product_type_id == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                     @endforeach
                 </select>
-                <input type="text" name="new_product_type" placeholder="Or enter new product type" class="mt-2 block w-full rounded-md border-gray-300">
             </div>
 
             <div>
@@ -32,12 +31,11 @@
 
             <div>
                 <label class="block text-xl font-medium">Manufacturer</label>
-                <select name="company_id" class="p-4 block w-full rounded-md border-gray-300">
-                    @foreach($companies as $company)
-                        <option value="{{ $company->id }}" {{ $product->company_id == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                <select name="manufacturer_id" class="p-4 block w-full rounded-md border-gray-300">
+                    @foreach($manufacturers as $manufacturer)
+                        <option value="{{ $manufacturer->id }}" {{ $product->manufacturer_id == $manufacturer->id ? 'selected' : '' }}>{{ $manufacturer->name }}</option>
                     @endforeach
                 </select>
-                <input type="text" name="new_company" placeholder="Or enter new manufacturer" class="mt-2 block w-full rounded-md border-gray-300">
             </div>
 
             <div>

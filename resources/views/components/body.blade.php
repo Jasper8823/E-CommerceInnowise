@@ -18,6 +18,14 @@
                             <x-nav-link href="{{ $productLink }}"
                                         :active="request()->is('products') || request()->is('admin/products')">Products
                             </x-nav-link>
+                            @auth()
+                                <x-nav-link href="/admin/product_types/create"
+                                            :active="request()->is('/admin/productTypes/create')">Product type
+                                </x-nav-link>
+                                <x-nav-link href="/admin/manufacturers/create"
+                                            :active="request()->is('/admin/manufacturers/create')">Manufacturer
+                                </x-nav-link>
+                            @endauth
                         </div>
                         <div style="display:inline-block;position:absolute; right: 250px">
                             @guest()

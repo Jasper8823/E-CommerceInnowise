@@ -65,7 +65,7 @@ Behavior:
 Technical notes:
 
     Uses Laravel’s native queue functionality.
-    
+    [DefaultService.php](app/Enums/DefaultService.php)
     Jobs are serialized and sent to RabbitMQ.
     
     No custom RabbitMQ wrapper or exchange customization required.

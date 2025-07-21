@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('manufacturers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price');
             $table->timestamp('release_date');
-            $table->foreignId('company_id')->constrained('companies');
+            $table->foreignId('manufacturer_id')->constrained('manufacturers');
             $table->string('description');
             $table->timestamps();
         });
