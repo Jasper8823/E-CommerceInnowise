@@ -16,7 +16,9 @@ use App\Models\ProductType;
 use App\Services\ProductCreationService;
 use App\Services\ProductQueryService;
 use App\Services\ProductUpdateService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 final class AdminProductController extends Controller
 {
@@ -26,7 +28,7 @@ final class AdminProductController extends Controller
         protected ProductUpdateService $productUpdateService
     ) {}
 
-    public function create()
+    public function create(): View
     {
         $types = ProductType::all();
         $manufacturers = Manufacturer::all();
@@ -34,7 +36,7 @@ final class AdminProductController extends Controller
         return view('product.admin.create', ['types' => $types, 'manufacturers' => $manufacturers]);
     }
 
-    public function export()
+    public function export(): RedirectResponse
     {
         $products = Product::all();
         $chunks = $products->chunk(100);
@@ -49,10 +51,15 @@ final class AdminProductController extends Controller
         return redirect()->back()->with('success', 'Export started!');
     }
 
-    public function index(ProductFilterRequest $request)
+    public function index(ProductFilterRequest $request): View
     {
-        $query = $this->productQueryService->getBuilder($request);
-        $products = $query->paginate(30);
+        $type = $request->input('type');
+        $name = $request->input('name');
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
+        $sort = $request->input('sort');
+
+        $products = $this->productQueryService->getBuilder($type, $name, $minPrice, $maxPrice, $sort);
         $types = ProductType::all();
 
         return view('product.admin.index', [
@@ -61,9 +68,9 @@ final class AdminProductController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($id): View
     {
-        $product = Product::all()->where('uuid', $id)->first();
+        $product = Product::where('uuid', $id)->first();
         $ratesDB = CurrencyRate::all();
         $rates = [];
 
@@ -75,17 +82,18 @@ final class AdminProductController extends Controller
 
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
 
         $product = new Product([
-            'name' => $request->input('name'),
+            'name' => $validated['name'],
             'uuid' => Str::uuid(),
-            'product_type_id' => $request->input('product_type_id'),
-            'price' => $request->input('price'),
-            'release_date' => $request->input('releaseDate'),
-            'manufacturer_id' => $request->input('manufacturer_id'),
-            'description' => $request->input('description'),
+            'product_type_id' => $validated['product_type_id'],
+            'price' => $validated['price'],
+            'release_date' => $validated['releaseDate'],
+            'manufacturer_id' => $validated['manufacturer_id'],
+            'description' => $validated['description'] ?? null,
         ]);
 
         $product->save();
@@ -95,7 +103,7 @@ final class AdminProductController extends Controller
         return redirect('/admin/products')->with('success', 'Product created successfully!');
     }
 
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         $product = Product::where('id', $id)->first();
         $product->delete();
@@ -103,7 +111,7 @@ final class AdminProductController extends Controller
         return redirect('/');
     }
 
-    public function edit($id)
+    public function edit($id): View
     {
         $product = Product::with(['type', 'manufacturer', 'services'])->where('uuid', $id)->firstOrFail();
         $types = ProductType::all();
@@ -113,17 +121,19 @@ final class AdminProductController extends Controller
         return view('product.admin.edit', compact('product', 'types', 'manufacturers', 'defaultServices'));
     }
 
-    public function update(StoreProductRequest $request, string $id)
+    public function update(StoreProductRequest $request, string $id): RedirectResponse
     {
+        $validated = $request->validated();
+
         $product = Product::where('uuid', $id)->firstOrFail();
 
         $product->update([
-            'name' => $request->name,
-            'price' => $request->price,
-            'description' => $request->description,
-            'release_date' => $request->releaseDate,
-            'product_type_id' => $request->input('product_type_id'),
-            'manufacturer_id' => $request->input('manufacturer_id'),
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'description' => $validated['description'] ?? null,
+            'release_date' => $validated['releaseDate'],
+            'product_type_id' => $validated['product_type_id'],
+            'manufacturer_id' => $validated['manufacturer_id'],
         ]);
 
         $product->services()->detach();

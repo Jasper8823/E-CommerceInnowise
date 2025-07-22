@@ -4,34 +4,35 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Http\Requests\ProductFilterRequest;
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 final class ProductQueryService
 {
-    public function getBuilder(ProductFilterRequest $request): Builder
+    private $pagination = 30;
+
+    public function getBuilder(?string $type, ?string $name, ?float $minPrice, ?float $maxPrice, ?string $sort): LengthAwarePaginator
     {
         $query = Product::query();
 
-        if ($request->filled('type')) {
-            $query->whereHas('type', fn ($q) => $q->where('name', $request->type));
+        if (! is_null($type)) {
+            $query->whereHas('type', fn ($q) => $q->where('name', $type));
         }
 
-        if ($request->filled('name')) {
-            $query->where('name', 'like', '%'.$request->name.'%');
+        if (! is_null($name)) {
+            $query->where('name', 'like', '%'.$name.'%');
         }
 
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
+        if (! is_null($minPrice)) {
+            $query->where('price', '>=', $minPrice);
         }
 
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+        if (! is_null($maxPrice)) {
+            $query->where('price', '<=', $maxPrice);
         }
 
-        if ($request->filled('sort')) {
-            switch ($request->sort) {
+        if (! is_null($sort)) {
+            switch ($sort) {
                 case 'price_asc':
                     $query->orderBy('price');
                     break;
@@ -50,6 +51,8 @@ final class ProductQueryService
         } else {
             $query->orderBy('name');
         }
+
+        $query = $query->paginate($this->pagination);
 
         return $query;
     }

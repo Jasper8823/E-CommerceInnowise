@@ -30,21 +30,11 @@ final class Service extends Model
 
         $convertedPrice = $price * $rate->rate;
 
-        switch ($currency) {
-            case 'USD':
-                $formattedPrice = '$ '.number_format($convertedPrice, 2);
-                break;
-            case 'PLN':
-                $formattedPrice = 'PLN '.number_format($convertedPrice, 2);
-                break;
-            case 'EUR':
-                $formattedPrice = '€ '.number_format($convertedPrice, 2);
-                break;
-            default:
-                $formattedPrice = 'Unsupported currency';
-                break;
-        }
-
-        return $formattedPrice;
+        return match ($currency) {
+            'USD' => '$ '.number_format($convertedPrice, 2),
+            'PLN' => 'PLN '.number_format($convertedPrice, 2),
+            'EUR' => '€ '.number_format($convertedPrice, 2),
+            default => 'Unsupported currency',
+        };
     }
 }

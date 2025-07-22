@@ -1,27 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\AdminManufacturerRequest;
 use App\Models\Manufacturer;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class AdminManufacturerController
+final class AdminManufacturerController
 {
-    public function create()
+    public function create(): View
     {
         return view('manufacturer.admin.create');
     }
 
-
-
-    public function store(Request $request)
+    public function store(AdminManufacturerRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:manufacturers,name',
-        ]);
+        $validated = $request->validated();
 
         $manufacturer = new Manufacturer([
-            'name' => $validated['name']
+            'name' => $validated['name'],
         ]);
 
         $manufacturer->save();

@@ -22,9 +22,7 @@ final class StoreProductRequest extends FormRequest
             'description' => ['required', 'string'],
 
             'product_type_id' => ['nullable', 'exists:product_types,id'],
-            'new_product_type' => ['nullable', 'string', 'max:255'],
-            'company_id' => ['nullable', 'exists:companies,id'],
-            'new_company' => ['nullable', 'string', 'max:255'],
+            'manufacturer_id' => ['nullable', 'exists:manufacturers,id'],
 
             'services' => ['nullable', 'array'],
             'custom_services' => ['nullable', 'array'],

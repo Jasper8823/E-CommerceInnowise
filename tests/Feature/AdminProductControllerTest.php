@@ -42,7 +42,7 @@ final class AdminProductControllerTest extends TestCase
             'price' => 100,
             'releaseDate' => '2024-01-01',
             'description' => 'Test description',
-            'company_id' => $company->id,
+            'manufacturer_id' => $company->id,
             'product_type_id' => $type->id,
         ]);
 
@@ -73,7 +73,7 @@ final class AdminProductControllerTest extends TestCase
             'description' => 'Updated description',
             'releaseDate' => '2025-01-01',
             'product_type_id' => ProductType::factory()->create()->id,
-            'company_id' => Manufacturer::factory()->create()->id,
+            'manufacturer_id' => Manufacturer::factory()->create()->id,
         ]);
 
         $response->assertRedirect(route('admin.products.index'));

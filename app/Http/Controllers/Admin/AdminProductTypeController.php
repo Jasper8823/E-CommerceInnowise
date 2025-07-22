@@ -1,28 +1,30 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
-use App\Models\ProductType;
-use Illuminate\Http\Request;
+declare(strict_types=1);
 
-class AdminProductTypeController
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Requests\AdminProductTypeRequest;
+use App\Models\ProductType;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+
+final class AdminProductTypeController
 {
-    public function create()
+    public function create(): View
     {
         return view('product_type.admin.create');
     }
 
-    public function store(Request $request)
+    public function store(AdminProductTypeRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:product_types,name',
+        $validated = $request->validated();
+
+        $manufacturer = new ProductType([
+            'name' => $validated['name'],
         ]);
+        $manufacturer->save();
 
-        $product_type = new ProductType([
-            'name' => $validated['name']
-        ]);
-
-        $product_type->save();
-
-        return redirect('/admin/products')->with('success', 'Product type created successfully!');
+        return redirect('/admin/products')->with('success', 'Manufacturer created successfully!');
     }
 }
