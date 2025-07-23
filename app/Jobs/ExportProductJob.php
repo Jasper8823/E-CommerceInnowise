@@ -29,7 +29,7 @@ final class ExportProductJob implements ShouldQueue
         $this->isLast = $isLast;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $path = 'exports/products.csv';
 

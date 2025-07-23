@@ -21,6 +21,7 @@ final class ProductFilterRequest extends FormRequest
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'min:0'],
             'sort' => ['nullable', 'in:price_asc,price_desc,release_asc,release_desc'],
+            'currency-selector' => ['nullable', 'string', 'in:USD,EUR,PLN'], // список допустимых валют
         ];
     }
 }

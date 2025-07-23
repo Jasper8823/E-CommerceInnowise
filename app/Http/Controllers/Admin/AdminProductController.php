@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductFilterRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Jobs\ExportProductJob;
-use App\Models\CurrencyRate;
 use App\Models\Manufacturer;
 use App\Models\Product;
 use App\Models\ProductType;
@@ -38,26 +37,38 @@ final class AdminProductController extends Controller
 
     public function export(): RedirectResponse
     {
-        $products = Product::all();
-        $chunks = $products->chunk(100);
-        $lastIndex = $chunks->count() - 1;
+        $batchSize = 100;
+        $index = 0;
 
-        foreach ($chunks as $index => $chunk) {
-            $isLast = $index === $lastIndex;
-            $isFirst = $index === 0;
-            ExportProductJob::dispatch($chunk->toArray(), $isFirst, $isLast);
+        $lastProduct = Product::latest('id')->first();
+
+        if (! $lastProduct) {
+            return redirect()->back()->with('success', 'No products to export.');
         }
+
+        Product::with(['manufacturer', 'services'])
+            ->orderBy('id')
+            ->chunk($batchSize, function ($products) use (&$index, $lastProduct) {
+                $isLast = $products->last()->is($lastProduct);
+
+                ExportProductJob::dispatch($products->toArray(), $index, $isLast);
+
+                $index++;
+            });
 
         return redirect()->back()->with('success', 'Export started!');
     }
 
     public function index(ProductFilterRequest $request): View
     {
-        $type = $request->input('type');
-        $name = $request->input('name');
-        $minPrice = $request->input('min_price');
-        $maxPrice = $request->input('max_price');
-        $sort = $request->input('sort');
+        $validated = $request->validated();
+
+        $type = $validated['type'] ?? null;
+
+        $name = $validated['name'] ?? null;
+        $minPrice = $validated['min_price'] ?? null;
+        $maxPrice = $validated['max_price'] ?? null;
+        $sort = $validated['sort'] ?? null;
 
         $products = $this->productQueryService->getBuilder($type, $name, $minPrice, $maxPrice, $sort);
         $types = ProductType::all();
@@ -71,15 +82,8 @@ final class AdminProductController extends Controller
     public function show($id): View
     {
         $product = Product::where('uuid', $id)->first();
-        $ratesDB = CurrencyRate::all();
-        $rates = [];
-
-        foreach ($ratesDB as $rate) {
-            $rates[$rate->currency] = $rate->rate;
-        }
 
         return view('product.admin.show', ['product' => $product]);
-
     }
 
     public function store(StoreProductRequest $request): RedirectResponse
@@ -98,7 +102,10 @@ final class AdminProductController extends Controller
 
         $product->save();
 
-        $this->productCreationService->attachServices($product, $request);
+        $services = $validated['services'] ?? [];
+        $custom_services = $validated['custom_services'] ?? [];
+
+        $this->productCreationService->attachServices($product, $custom_services, $services);
 
         return redirect('/admin/products')->with('success', 'Product created successfully!');
     }
@@ -138,7 +145,9 @@ final class AdminProductController extends Controller
 
         $product->services()->detach();
 
-        $this->productUpdateService->connectServices($request, $product);
+        $services = $validated['services'] ?? [];
+
+        $this->productUpdateService->connectServices($product, $services);
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }

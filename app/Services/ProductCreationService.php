@@ -6,17 +6,17 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Service;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
+use function PHPUnit\Framework\isEmpty;
 
 final class ProductCreationService
 {
-    public function attachServices(Product $product, Request $request): void
+    public function attachServices(Product $product, $custom_services, $services): void
     {
-        if ($request->filled('custom_services')) {
-            $customServices = $request->input('custom_services');
-            foreach ($customServices as $index => $customService) {
-                $validator = Validator::make($customService, [
+        if (isEmpty($custom_services)) {
+            foreach ($custom_services as $index => $custom_service) {
+                $validator = Validator::make($custom_service, [
                     'name' => 'required|string|min:2|max:64',
                     'price' => 'required|numeric|min:0',
                     'daysNeeded' => 'required|integer|min:0',
@@ -27,17 +27,16 @@ final class ProductCreationService
                 }
 
                 $service = new Service();
-                $service->name = $customService['name'];
+                $service->name = $custom_service['name'];
                 $service->save();
 
                 $product->services()->attach($service->id, [
-                    'price' => $customService['price'],
-                    'days_needed' => $customService['daysNeeded'],
+                    'price' => $custom_service['price'],
+                    'days_needed' => $custom_service['daysNeeded'],
                 ]);
             }
         }
 
-        $services = $request->input('services', []);
         foreach ($services as $serviceName => $serviceData) {
             if (! isset($serviceData['enabled'])) {
                 continue;

@@ -23,7 +23,7 @@ final class Product extends Model
         'description',
     ];
 
-    public function getRouteKeyName()
+    public function getRouteKeyName(): string
     {
         return 'uuid';
     }

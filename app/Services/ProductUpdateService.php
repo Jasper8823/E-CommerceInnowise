@@ -6,13 +6,12 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Service;
-use Illuminate\Http\Request;
 
 final class ProductUpdateService
 {
-    public function connectServices(Request $request, Product $product): void
+    public function connectServices(Product $product, $services): void
     {
-        foreach ($request->input('services', []) as $serviceData) {
+        foreach ($services as $serviceData) {
             if (! isset($serviceData['name'], $serviceData['price'], $serviceData['daysNeeded'])) {
                 continue;
             }

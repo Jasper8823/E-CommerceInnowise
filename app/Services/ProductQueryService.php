@@ -11,7 +11,7 @@ final class ProductQueryService
 {
     private $pagination = 30;
 
-    public function getBuilder(?string $type, ?string $name, ?float $minPrice, ?float $maxPrice, ?string $sort): LengthAwarePaginator
+    public function getBuilder(?string $type, ?string $name, ?string $minPrice, ?string $maxPrice, ?string $sort): LengthAwarePaginator
     {
         $query = Product::query();
 

@@ -104,3 +104,5 @@ Running the Worker
 Run the following command to start the queue worker:
 
     ./vendor/bin/sail artisan queue:work
+
+Two different testing frameworks were intentionally used: one installed with the Breeze framework (Pest), and another one created by me (Unit).

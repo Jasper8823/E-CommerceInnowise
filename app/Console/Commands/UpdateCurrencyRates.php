@@ -14,7 +14,7 @@ final class UpdateCurrencyRates extends Command
 
     protected $description = 'Downloads current exchange rates from bankdabrabyt.by and stores them in the database';
 
-    public function handle()
+    public function handle(): void
     {
         $this->info('Downloading currency exchange rates from ECB...');
 
