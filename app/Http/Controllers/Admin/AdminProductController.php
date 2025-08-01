@@ -9,9 +9,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductFilterRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Jobs\ExportProductJob;
-use App\Models\Manufacturer;
-use App\Models\Product;
-use App\Models\ProductType;
+use App\Repositories\Contracts\ManufacturerRepositoryInterface;
+use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\ProductTypeRepositoryInterface;
 use App\Services\ProductCreationService;
 use App\Services\ProductQueryService;
 use App\Services\ProductUpdateService;
@@ -24,15 +24,18 @@ final class AdminProductController extends Controller
     public function __construct(
         protected ProductQueryService $productQueryService,
         protected ProductCreationService $productCreationService,
-        protected ProductUpdateService $productUpdateService
+        protected ProductUpdateService $productUpdateService,
+        protected ProductRepositoryInterface $productRepository,
+        protected ManufacturerRepositoryInterface $manufacturerRepository,
+        protected ProductTypeRepositoryInterface $productTypeRepository
     ) {}
 
     public function create(): View
     {
-        $types = ProductType::all();
-        $manufacturers = Manufacturer::all();
+        $types = $this->productTypeRepository->all();
+        $manufacturers = $this->manufacturerRepository->all();
 
-        return view('product.admin.create', ['types' => $types, 'manufacturers' => $manufacturers]);
+        return view('product.admin.create', compact('types', 'manufacturers'));
     }
 
     public function export(): RedirectResponse
@@ -40,21 +43,18 @@ final class AdminProductController extends Controller
         $batchSize = 100;
         $index = 0;
 
-        $lastProduct = Product::latest('id')->first();
+        $lastProduct = $this->productRepository->latest();
 
         if (! $lastProduct) {
             return redirect()->back()->with('success', 'No products to export.');
         }
 
-        Product::with(['manufacturer', 'services'])
-            ->orderBy('id')
-            ->chunk($batchSize, function ($products) use (&$index, $lastProduct) {
-                $isLast = $products->last()->is($lastProduct);
+        $this->productRepository->chunk($batchSize, function ($products) use (&$index, $lastProduct) {
+            $isLast = $products->last()->is($lastProduct);
 
-                ExportProductJob::dispatch($products->toArray(), $index, $isLast);
-
-                $index++;
-            });
+            ExportProductJob::dispatch($products->toArray(), $index, $isLast);
+            $index++;
+        });
 
         return redirect()->back()->with('success', 'Export started!');
     }
@@ -63,25 +63,22 @@ final class AdminProductController extends Controller
     {
         $validated = $request->validated();
 
-        $type = $validated['type'] ?? null;
+        $products = $this->productQueryService->getBuilder(
+            $validated['type'] ?? null,
+            $validated['name'] ?? null,
+            $validated['min_price'] ?? null,
+            $validated['max_price'] ?? null,
+            $validated['sort'] ?? null
+        );
 
-        $name = $validated['name'] ?? null;
-        $minPrice = $validated['min_price'] ?? null;
-        $maxPrice = $validated['max_price'] ?? null;
-        $sort = $validated['sort'] ?? null;
+        $types = $this->productTypeRepository->all();
 
-        $products = $this->productQueryService->getBuilder($type, $name, $minPrice, $maxPrice, $sort);
-        $types = ProductType::all();
-
-        return view('product.admin.index', [
-            'products' => $products,
-            'types' => $types,
-        ]);
+        return view('product.admin.index', compact('products', 'types'));
     }
 
     public function show($id): View
     {
-        $product = Product::where('uuid', $id)->first();
+        $product = $this->productRepository->findByUuid($id);
 
         return view('product.admin.show', ['product' => $product]);
     }
@@ -90,7 +87,7 @@ final class AdminProductController extends Controller
     {
         $validated = $request->validated();
 
-        $product = new Product([
+        $product = $this->productRepository->create([
             'name' => $validated['name'],
             'uuid' => Str::uuid(),
             'product_type_id' => $validated['product_type_id'],
@@ -100,29 +97,29 @@ final class AdminProductController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        $product->save();
-
         $services = $validated['services'] ?? [];
-        $custom_services = $validated['custom_services'] ?? [];
+        $customServices = $validated['custom_services'] ?? [];
 
-        $this->productCreationService->attachServices($product, $custom_services, $services);
+        $this->productCreationService->attachServices($product, $customServices, $services);
 
         return redirect('/admin/products')->with('success', 'Product created successfully!');
     }
 
     public function destroy($id): RedirectResponse
     {
-        $product = Product::where('id', $id)->first();
-        $product->delete();
+        $product = $this->productRepository->findByUuid($id);
+        if ($product) {
+            $this->productRepository->delete($product);
+        }
 
         return redirect('/');
     }
 
     public function edit($id): View
     {
-        $product = Product::with(['type', 'manufacturer', 'services'])->where('uuid', $id)->firstOrFail();
-        $types = ProductType::all();
-        $manufacturers = Manufacturer::all();
+        $product = $this->productRepository->findByUuid($id);
+        $types = $this->productTypeRepository->all();
+        $manufacturers = $this->manufacturerRepository->all();
         $defaultServices = DefaultService::names();
 
         return view('product.admin.edit', compact('product', 'types', 'manufacturers', 'defaultServices'));
@@ -132,9 +129,9 @@ final class AdminProductController extends Controller
     {
         $validated = $request->validated();
 
-        $product = Product::where('uuid', $id)->firstOrFail();
+        $product = $this->productRepository->findByUuid($id);
 
-        $product->update([
+        $this->productRepository->update($product, [
             'name' => $validated['name'],
             'price' => $validated['price'],
             'description' => $validated['description'] ?? null,
@@ -143,7 +140,7 @@ final class AdminProductController extends Controller
             'manufacturer_id' => $validated['manufacturer_id'],
         ]);
 
-        $product->services()->detach();
+        $product->services()->detach(); // Можно обернуть это в сервис/репу при желании
 
         $services = $validated['services'] ?? [];
 

@@ -2,8 +2,11 @@
 <project version="4">
   <component name="LaravelPint">
     <laravel_pint_settings>
-      <LaravelPintConfiguration tool_path="$PROJECT_DIR$/e-commerce/vendor/bin/pint" />
+      <LaravelPintConfiguration tool_path="$PROJECT_DIR$/vendor/bin/pint" />
     </laravel_pint_settings>
+  </component>
+  <component name="LaravelPintOptionsConfiguration">
+    <option name="pintJsonPath" value="$PROJECT_DIR$/pint.json" />
   </component>
   <component name="MessDetectorOptionsConfiguration">
     <option name="transferred" value="true" />
@@ -159,18 +162,8 @@
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
-  <component name="PhpStan">
-    <PhpStan_settings>
-      <PhpStanConfiguration tool_path="$PROJECT_DIR$/e-commerce/vendor/bin/phpstan" />
-    </PhpStan_settings>
-  </component>
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
-  </component>
-  <component name="PhpUnit">
-    <phpunit_settings>
-      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/e-commerce/vendor/autoload.php" />
-    </phpunit_settings>
   </component>
   <component name="PsalmOptionsConfiguration">
     <option name="transferred" value="true" />

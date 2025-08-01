@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\CurrencyFormatterService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,19 +23,8 @@ final class Service extends Model
 
     public function getPrice($currency, $price): string
     {
-        $rate = CurrencyRate::where('currency', $currency)->first();
+        $formatter = new CurrencyFormatterService();
 
-        if (! $rate) {
-            return 'Currency rate not found for '.$currency;
-        }
-
-        $convertedPrice = $price * $rate->rate;
-
-        return match ($currency) {
-            'USD' => '$ '.number_format($convertedPrice, 2),
-            'PLN' => 'PLN '.number_format($convertedPrice, 2),
-            'EUR' => '€ '.number_format($convertedPrice, 2),
-            default => 'Unsupported currency',
-        };
+        return $formatter->format($price, $currency);
     }
 }

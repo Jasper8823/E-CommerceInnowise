@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\AdminManufacturerRequest;
-use App\Models\Manufacturer;
+use App\Repositories\Contracts\ManufacturerRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 final class AdminManufacturerController
 {
+    public function __construct(
+        private ManufacturerRepositoryInterface $manufacturerRepository
+    ) {}
+
     public function create(): View
     {
         return view('manufacturer.admin.create');
@@ -20,11 +24,9 @@ final class AdminManufacturerController
     {
         $validated = $request->validated();
 
-        $manufacturer = new Manufacturer([
+        $this->manufacturerRepository->create([
             'name' => $validated['name'],
         ]);
-
-        $manufacturer->save();
 
         return redirect('/admin/products')->with('success', 'Manufacturer created successfully!');
     }

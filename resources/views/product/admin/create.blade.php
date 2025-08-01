@@ -57,7 +57,7 @@
 
                 @foreach($defaultServices as $service)
                     <div class="flex items-center gap-3 mb-2">
-                        <input type="checkbox" name="services[{{ $service }}][enabled]" value="1" class="h-4 w-4 text-indigo-600">
+                        <input type="checkbox" name="services[{{ $service }}][name]" value="{{$service}}" class="h-4 w-4 text-indigo-600">
                         <span class="capitalize">{{ $service }}</span>
                         <input type="number" min="0" name="services[{{ $service }}][price]" placeholder="Price" class="ml-2 w-24 rounded border-gray-300" />
                         <input type="number" min="0" name="services[{{ $service }}][daysNeeded]" placeholder="Days" class="w-20 rounded border-gray-300" />

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\CurrencyRate;
+use App\Repositories\CurrencyRateRepository;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 final class UpdateCurrencyRates extends Command
 {
@@ -14,29 +16,34 @@ final class UpdateCurrencyRates extends Command
 
     protected $description = 'Downloads current exchange rates from bankdabrabyt.by and stores them in the database';
 
+    private CurrencyRateRepository $currencyRateRepository;
+
+    public function __construct(CurrencyRateRepository $currencyRateRepository)
+    {
+        parent::__construct();
+        $this->currencyRateRepository = $currencyRateRepository;
+    }
+
     public function handle(): void
     {
         $this->info('Downloading currency exchange rates from ECB...');
 
         try {
-            $xml = simplexml_load_file('https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml');
+            $response = Http::get('https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml');
 
-            if (! $xml) {
-                throw new Exception('Unable to parse ECB XML.');
-            }
+            if ($response->successful()) {
+                $xml = simplexml_load_string($response->body());
 
-            $cube = $xml->Cube->Cube;
+                foreach ($xml->Cube->Cube->Cube as $rateNode) {
+                    $currency = (string) $rateNode['currency'];
+                    $rate = (float) $rateNode['rate'];
 
-            foreach ($cube->Cube as $rateNode) {
-                $currency = (string) $rateNode['currency'];
-                $rate = (float) $rateNode['rate'];
+                    $this->currencyRateRepository->updateOrCreate($currency, $rate);
 
-                CurrencyRate::updateOrCreate(
-                    ['currency' => $currency],
-                    ['rate' => $rate]
-                );
-
-                $this->info("Updated: $currency => $rate");
+                    $this->info("Currency $currency updated $rate");
+                }
+            } else {
+                $this->error('Failed to fetch currency rates');
             }
 
             CurrencyRate::updateOrCreate(

@@ -84,7 +84,7 @@ final class AdminProductControllerTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->delete("/admin/products/{$product->id}");
+        $response = $this->delete("/admin/products/{$product->uuid}");
 
         $response->assertRedirect('/');
         $this->assertDatabaseMissing('products', ['id' => $product->id]);

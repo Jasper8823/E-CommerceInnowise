@@ -29,7 +29,7 @@
                                         </p>
                                         <p class="text-xs text-gray-400">Released: {{ date('d F Y', strtotime($product->release_date)) }}</p>
                                     </div>
-                                        <form method="POST" action="products/{{ $product->id }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                        <form method="POST" action="products/{{ $product->uuid }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
                                             @csrf
                                             @method('DELETE')
                                             <button

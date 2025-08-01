@@ -5,18 +5,20 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Product;
-use App\Models\Service;
+use App\Repositories\ProductRepository;
+use App\Repositories\ServiceRepository;
 use Illuminate\Support\Facades\Validator;
-
-use function PHPUnit\Framework\isEmpty;
 
 final class ProductCreationService
 {
-    public function attachServices(Product $product, $custom_services, $services): void
+    public function __construct(private ServiceRepository $serviceRepository,
+        private ProductRepository $productRepository) {}
+
+    public function attachServices(Product $product, array $customServices, array $services): void
     {
-        if (isEmpty($custom_services)) {
-            foreach ($custom_services as $index => $custom_service) {
-                $validator = Validator::make($custom_service, [
+        if (! empty($customServices)) {
+            foreach ($customServices as $customService) {
+                $validator = Validator::make($customService, [
                     'name' => 'required|string|min:2|max:64',
                     'price' => 'required|numeric|min:0',
                     'daysNeeded' => 'required|integer|min:0',
@@ -26,19 +28,14 @@ final class ProductCreationService
                     continue;
                 }
 
-                $service = new Service();
-                $service->name = $custom_service['name'];
-                $service->save();
+                $service = $this->serviceRepository->firstOrCreate(['name' => $customService['name']]);
 
-                $product->services()->attach($service->id, [
-                    'price' => $custom_service['price'],
-                    'days_needed' => $custom_service['daysNeeded'],
-                ]);
+                $this->productRepository->attachService($product, $service->id, (float) $customService['price'], (int) $customService['daysNeeded']);
             }
         }
 
         foreach ($services as $serviceName => $serviceData) {
-            if (! isset($serviceData['enabled'])) {
+            if (! isset($serviceData['name'])) {
                 continue;
             }
 
@@ -51,18 +48,9 @@ final class ProductCreationService
                 continue;
             }
 
-            $service = Service::where('name', $serviceName)->first();
+            $service = $this->serviceRepository->firstOrCreate(['name' => $serviceData['name']]);
 
-            if (! $service) {
-                $service = new Service();
-                $service->name = $serviceName;
-                $service->save();
-            }
-
-            $product->services()->attach($service->id, [
-                'price' => $serviceData['price'],
-                'days_needed' => $serviceData['daysNeeded'],
-            ]);
+            $this->productRepository->attachService($product, $service->id, (float) $serviceData['price'], (int) $serviceData['daysNeeded']);
         }
     }
 }

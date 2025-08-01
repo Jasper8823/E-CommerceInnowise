@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\AdminProductTypeRequest;
-use App\Models\ProductType;
+use App\Repositories\Contracts\ProductTypeRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 final class AdminProductTypeController
 {
+    public function __construct(
+        private ProductTypeRepositoryInterface $productTypeRepository
+    ) {}
+
     public function create(): View
     {
         return view('product_type.admin.create');
@@ -20,11 +24,10 @@ final class AdminProductTypeController
     {
         $validated = $request->validated();
 
-        $manufacturer = new ProductType([
+        $this->productTypeRepository->create([
             'name' => $validated['name'],
         ]);
-        $manufacturer->save();
 
-        return redirect('/admin/products')->with('success', 'Manufacturer created successfully!');
+        return redirect('/admin/products')->with('success', 'Product type created successfully!');
     }
 }
