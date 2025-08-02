@@ -140,7 +140,7 @@ final class AdminProductController extends Controller
             'manufacturer_id' => $validated['manufacturer_id'],
         ]);
 
-        $product->services()->detach(); // Можно обернуть это в сервис/репу при желании
+        $product->services()->detach();
 
         $services = $validated['services'] ?? [];
 

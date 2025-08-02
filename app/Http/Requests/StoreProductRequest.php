@@ -25,7 +25,13 @@ final class StoreProductRequest extends FormRequest
             'manufacturer_id' => ['nullable', 'exists:manufacturers,id'],
 
             'services' => ['nullable', 'array'],
+            'services.*.price' => ['nullable', 'numeric', 'min:0'],
+            'services.*.daysNeeded' => ['nullable', 'integer', 'min:0'],
+
             'custom_services' => ['nullable', 'array'],
+            'custom_services.*.name' => ['required', 'string', 'min:2', 'max:64'],
+            'custom_services.*.price' => ['required', 'numeric', 'min:0'],
+            'custom_services.*.daysNeeded' => ['required', 'integer', 'min:0'],
         ];
     }
 }

@@ -18,15 +18,6 @@ final class ProductCreationService
     {
         if (! empty($customServices)) {
             foreach ($customServices as $customService) {
-                $validator = Validator::make($customService, [
-                    'name' => 'required|string|min:2|max:64',
-                    'price' => 'required|numeric|min:0',
-                    'daysNeeded' => 'required|integer|min:0',
-                ]);
-
-                if ($validator->fails()) {
-                    continue;
-                }
 
                 $service = $this->serviceRepository->firstOrCreate(['name' => $customService['name']]);
 
@@ -36,15 +27,6 @@ final class ProductCreationService
 
         foreach ($services as $serviceName => $serviceData) {
             if (! isset($serviceData['name'])) {
-                continue;
-            }
-
-            $validator = Validator::make($serviceData + ['name' => $serviceName], [
-                'price' => 'required|numeric|min:0',
-                'daysNeeded' => 'required|integer|min:0',
-            ]);
-
-            if ($validator->fails()) {
                 continue;
             }
 
