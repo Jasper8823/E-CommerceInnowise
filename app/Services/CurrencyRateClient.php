@@ -1,25 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Exceptions\CurrencyRateClientException;
 use App\Interfaces\CurrencyRateClientInterface;
-use Illuminate\Support\Facades\Http;
-use RuntimeException;
+use Illuminate\Http\Client\Factory;
 
 final class CurrencyRateClient implements CurrencyRateClientInterface
 {
-    public function fetchRates(): array
+    private const xml_namespace = 'http://www.ecb.int/vocabulary/2002-08-01/eurofxref';
+
+    public function __construct(
+        private readonly Factory $http,
+    ) {}
+
+    public function fetchRates(string $url): array
     {
-        $url = config('services.ecb.url');
-        $response = Http::get($url);
+        $response = $this->http->get($url);
 
         if (! $response->ok()) {
-            throw new RuntimeException('Failed to fetch exchange rates.');
+            throw new CurrencyRateClientException('Failed to fetch exchange rates from ECB.');
         }
 
         $xml = simplexml_load_string($response->body());
-        $xml->registerXPathNamespace('ns', 'http://www.ecb.int/vocabulary/2002-08-01/eurofxref');
+        if ($xml === false) {
+            throw new CurrencyRateClientException('Invalid XML format from ECB response.');
+        }
+
+        $xml->registerXPathNamespace('ns', self::xml_namespace);
         $nodes = $xml->xpath('//ns:Cube/ns:Cube/ns:Cube');
+
+        if (! is_array($nodes)) {
+            throw new CurrencyRateClientException('Malformed XML structure.');
+        }
 
         $result = ['EUR' => 1.0];
         foreach ($nodes as $node) {
@@ -31,4 +46,3 @@ final class CurrencyRateClient implements CurrencyRateClientInterface
         return $result;
     }
 }
-

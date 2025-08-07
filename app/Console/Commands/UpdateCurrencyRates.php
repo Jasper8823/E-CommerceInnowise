@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Services\CurrencyRateClient;
 use App\Repositories\CurrencyRateRepository;
+use App\Services\CurrencyRateClient;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -27,7 +27,8 @@ final class UpdateCurrencyRates extends Command
         $this->info('Fetching currency exchange rates from ECB...');
 
         try {
-            $rates = $this->currencyClient->fetchRates();
+            $url = config('services.ecb.url');
+            $rates = $this->currencyClient->fetchRates($url);
 
             foreach ($rates as $currency => $rate) {
                 $this->currencyRateRepository->updateOrCreate($currency, $rate);

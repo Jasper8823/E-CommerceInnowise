@@ -21,4 +21,9 @@ class CurrencyRateRepository implements CurrencyRateRepositoryInterface
     {
         return CurrencyRate::pluck('rate', 'currency')->toArray();
     }
+
+    public function getCurrencyByName(string $currency): CurrencyRate
+    {
+        return CurrencyRate::where('currency', $currency)->first();
+    }
 }

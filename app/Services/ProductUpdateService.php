@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Product;
-use App\Repositories\ProductRepository;
-use App\Repositories\ServiceRepository;
+use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\ServiceRepositoryInterface;
 
 final class ProductUpdateService
 {
     public function __construct(
-        private ServiceRepository $serviceRepository,
-        private ProductRepository $productRepository
+        private ServiceRepositoryInterface $serviceRepository,
+        private ProductRepositoryInterface $productRepository
     ) {}
 
     public function connectServices(Product $product, array $services): void

@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use App\Repositories\ServiceRepository;
-use Illuminate\Support\Facades\Validator;
 
 final class ProductCreationService
 {

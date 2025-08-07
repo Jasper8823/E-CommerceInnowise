@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\CurrencyRate;
+use App\Repositories\CurrencyRateRepository;
 
 class CurrencyFormatterService
 {
+    private $currencyRateRepository;
+
     public function format(float $amount, string $currency): string
     {
-        $rate = CurrencyRate::where('currency', $currency)->first();
-
-        if (! $rate) {
-            return 'Currency rate not found for '.$currency;
+        if (! $this->currencyRateRepository) {
+            $this->currencyRateRepository = new CurrencyRateRepository();
         }
+        $rate = $this->currencyRateRepository->getCurrencyByName($currency);
 
         $convertedPrice = $amount * $rate->rate;
 

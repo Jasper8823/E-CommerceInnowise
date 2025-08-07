@@ -11,13 +11,11 @@ use App\Http\Requests\ProductFilterRequest;
 use App\Repositories\Contracts\CurrencyRateRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductTypeRepositoryInterface;
-use App\Services\ProductQueryService;
 use Illuminate\View\View;
 
 final class GuestProductController extends Controller
 {
     public function __construct(
-        protected ProductQueryService $productQueryService,
         protected ProductRepositoryInterface $productRepository,
         protected ProductTypeRepositoryInterface $productTypeRepository,
         protected CurrencyRateRepositoryInterface $currencyRateRepository,
@@ -27,12 +25,15 @@ final class GuestProductController extends Controller
     {
         $validated = $request->validated();
 
-        $products = $this->productQueryService->getBuilder(
+        $pagination = 30;
+
+        $products = $this->productRepository->getFilteredQuery(
             $validated['type'] ?? null,
             $validated['name'] ?? null,
             $validated['min_price'] ?? null,
             $validated['max_price'] ?? null,
-            $validated['sort'] ?? null
+            $validated['sort'] ?? null,
+            $pagination
         );
 
         $types = $this->productTypeRepository->all();

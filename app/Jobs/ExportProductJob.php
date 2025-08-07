@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 
 final class ExportProductJob implements ShouldQueue
 {
@@ -22,17 +22,16 @@ final class ExportProductJob implements ShouldQueue
 
     public bool $isLast;
 
-    public function __construct(array $products, bool $isFirst = false, bool $isLast = false)
+    public function __construct(array $products, bool $isFirst, bool $isLast)
     {
         $this->products = $products;
         $this->isFirst = $isFirst;
         $this->isLast = $isLast;
     }
 
-    public function handle(): void
+    public function handle(Filesystem $storage, Mailer $mailer): void
     {
-        $path = 'exports/products.csv';
-
+        $path = 'laravel-products/exports/products.csv';
         $csv = '';
         foreach ($this->products as $product) {
             $csv .= sprintf(
@@ -45,18 +44,16 @@ final class ExportProductJob implements ShouldQueue
         }
 
         if ($this->isFirst) {
-            Storage::disk('s3')->delete($path);
+            $storage->delete($path);
             $headers = "\"Name\",\"Price\",\"Release Date\",\"Description\"\n";
-            Storage::disk('s3')->put($path, $headers.$csv);
+            $storage->put($path, $headers.$csv);
         } else {
-            $old = Storage::disk('s3')->get($path);
-            Storage::disk('s3')->put($path, $old.$csv);
+            $storage->put($path, $storage->get($path).$csv);
         }
 
         if ($this->isLast) {
-            $url = Storage::disk('s3')->url($path);
-            $url = str_replace('localstack', 'localhost', $url); // заменить localstack на localhost
-            Mail::raw('Экспорт завершён. Файл: '.$url, function ($message) {
+            $url = $storage->url($path);
+            $mailer->raw('Экспорт завершён. Файл: '.$url, function ($message) {
                 $message->to('admin@example.com')->subject('Каталог экспортирован');
             });
         }

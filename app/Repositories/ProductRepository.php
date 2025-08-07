@@ -6,7 +6,7 @@ namespace App\Repositories;
 
 use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class ProductRepository implements ProductRepositoryInterface
@@ -56,7 +56,7 @@ class ProductRepository implements ProductRepositoryInterface
         ]);
     }
 
-    public function getFilteredQuery(?string $type, ?string $name, ?string $minPrice, ?string $maxPrice, ?string $sort): Builder
+    public function getFilteredQuery(?string $type, ?string $name, ?string $minPrice, ?string $maxPrice, ?string $sort, int $pagination): LengthAwarePaginator
     {
         $query = Product::query();
 
@@ -84,6 +84,6 @@ class ProductRepository implements ProductRepositoryInterface
             default => $query->orderBy('name'),
         };
 
-        return $query;
+        return $query->paginate($pagination);
     }
 }

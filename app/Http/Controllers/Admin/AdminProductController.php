@@ -13,7 +13,6 @@ use App\Repositories\Contracts\ManufacturerRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductTypeRepositoryInterface;
 use App\Services\ProductCreationService;
-use App\Services\ProductQueryService;
 use App\Services\ProductUpdateService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
@@ -22,12 +21,11 @@ use Illuminate\View\View;
 final class AdminProductController extends Controller
 {
     public function __construct(
-        protected ProductQueryService $productQueryService,
-        protected ProductCreationService $productCreationService,
-        protected ProductUpdateService $productUpdateService,
-        protected ProductRepositoryInterface $productRepository,
-        protected ManufacturerRepositoryInterface $manufacturerRepository,
-        protected ProductTypeRepositoryInterface $productTypeRepository
+        private ProductCreationService $productCreationService,
+        private ProductUpdateService $productUpdateService,
+        private ProductRepositoryInterface $productRepository,
+        private ManufacturerRepositoryInterface $manufacturerRepository,
+        private ProductTypeRepositoryInterface $productTypeRepository
     ) {}
 
     public function create(): View
@@ -51,8 +49,9 @@ final class AdminProductController extends Controller
 
         $this->productRepository->chunk($batchSize, function ($products) use (&$index, $lastProduct) {
             $isLast = $products->last()->is($lastProduct);
+            $isFirst = $index === 0;
 
-            ExportProductJob::dispatch($products->toArray(), $index, $isLast);
+            ExportProductJob::dispatch($products->toArray(), $isFirst, $isLast);
             $index++;
         });
 
@@ -63,12 +62,15 @@ final class AdminProductController extends Controller
     {
         $validated = $request->validated();
 
-        $products = $this->productQueryService->getBuilder(
+        $pagination = 30;
+
+        $products = $this->productRepository->getFilteredQuery(
             $validated['type'] ?? null,
             $validated['name'] ?? null,
             $validated['min_price'] ?? null,
             $validated['max_price'] ?? null,
-            $validated['sort'] ?? null
+            $validated['sort'] ?? null,
+            $pagination
         );
 
         $types = $this->productTypeRepository->all();
