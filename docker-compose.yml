@@ -1,0 +1,133 @@
+services:
+    laravel.test:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.4
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.4/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '3333:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - rabbitmq
+            - pgsql
+            - redis
+            - meilisearch
+            - mailpit
+            - selenium
+            - localstack
+    localstack:
+        image: localstack/localstack:latest
+        container_name: localstack
+        ports:
+            - "4566:4566"
+        environment:
+            - SERVICES=s3,ses
+            - DEBUG=1
+            - DATA_DIR=/tmp/localstack/data
+            - AWS_DEFAULT_REGION=us-east-1
+            - DOCKER_HOST=unix:///var/run/docker.sock
+            - TMPDIR=/tmp/localstack_tmp
+        volumes:
+            - "./localstack:/tmp/localstack_tmp"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+        networks:
+            - sail
+    pgsql:
+        image: 'postgres:13'
+        container_name: laravel-db
+        environment:
+            POSTGRES_USER: laraveluser
+            POSTGRES_PASSWORD: laravelPass
+            POSTGRES_DB: laraveldb
+        volumes:
+            - 'db_data:/var/lib/postgresql/data'
+        networks:
+            - sail
+        ports:
+            - '8585:5432'
+    redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'sail-redis:/data'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
+    meilisearch:
+        image: 'getmeili/meilisearch:latest'
+        ports:
+            - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
+        environment:
+            MEILI_NO_ANALYTICS: '${MEILISEARCH_NO_ANALYTICS:-false}'
+        volumes:
+            - 'sail-meilisearch:/meili_data'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '--no-verbose'
+                - '--spider'
+                - 'http://127.0.0.1:7700/health'
+            retries: 3
+            timeout: 5s
+    mailpit:
+        image: 'axllent/mailpit:latest'
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        networks:
+            - sail
+    selenium:
+        image: selenium/standalone-chromium
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        volumes:
+            - '/dev/shm:/dev/shm'
+        networks:
+            - sail
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        ports:
+            - "5672:5672"     # для AMQP
+            - "15672:15672"   # для веб-интерфейса RabbitMQ
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+        networks:
+            - sail
+networks:
+    sail:
+        driver: bridge
+volumes:
+    sail-pgsql:
+        driver: local
+    sail-redis:
+        driver: local
+    sail-meilisearch:
+        driver: local
+    db_data:
+        driver: local
